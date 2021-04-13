@@ -84,6 +84,9 @@ service gali{
 
     rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
     rpc GetFiles(FileRequest) returns (stream GenericFile);
+    //rpc UploadFile() returns 
 
 
 }
+
+
