@@ -1,0 +1,89 @@
+syntax= "proto3";
+package gali;
+
+message RegisterRequest{
+    string FirstName = 1;
+    string LastName = 2;
+    string Mail = 3;
+    string Password = 4;
+    
+}
+message StatusResponse{
+}
+
+message RefreshTokenRequest{
+    string RefreshToken = 1;
+}
+
+// Login
+message LoginRequest{
+    string Mail = 1;
+    string Password = 2;
+    string Identifier = 3;
+    string DeviceName = 4;
+}
+
+message LoginResponse{
+    string AccessToken = 1;
+    int64 ExpiresOn = 2;
+    string RefreshToken = 3;
+
+}
+
+
+// user info 
+message UserInfoRequest{
+}
+message UserInfoResponse{
+    string FirstName = 1;
+    string LastName = 2;
+    string Mail = 4;
+    int64 ImageID = 5;
+}
+
+
+message GenericUser{
+    string Mail = 1;
+    int64 ImageID = 2;
+}
+
+
+message FileRequest{
+
+}
+
+// The file that is stored in in the database.
+message GenericFile{
+}
+
+message VerifyRequest{
+    string Mail = 1;
+    string code = 2;
+}
+
+message CodeRequest{
+    string Mail = 1;
+}
+
+message ResetPasswordRequest{
+    string Mail = 1;
+    string Password = 2;
+    string Code = 3;
+}
+
+service gali_auth{
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (LoginResponse);
+    rpc Register(RegisterRequest) returns (StatusResponse);
+    rpc Verify(VerifyRequest) returns (StatusResponse);
+    rpc GetVerifyCode(CodeRequest) returns (StatusResponse);
+    rpc ResetPassword(ResetPasswordRequest) returns (StatusResponse);
+}
+
+service gali{
+
+    rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
+    rpc GetFiles(FileRequest) returns (stream GenericFile);
+
+
+}

@@ -1,0 +1,1 @@
+dart pub global deactivate protoc_plugin
