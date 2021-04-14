@@ -11,22 +11,22 @@ import (
 
 // User struct conains user info.
 type User struct {
-	FirstName            string   `bson:"FirstName" json:"FirstName"`
-	LastName             string   `bson:"LastName" json:"LastName"`
-	Email                string   `bson:"Email" json:"Email"`
-	Password             string   `bson:"Password" json:"Password"`
-	Role                 string   `bson:"Role" json:"Role"`
-	
-	RefreshToken         string   `bson:"RefreshToken" json:"RefreshToken"`
+	FirstName string `bson:"FirstName" json:"FirstName"`
+	LastName  string `bson:"LastName" json:"LastName"`
+	Email     string `bson:"Email" json:"Email"`
+	Password  string `bson:"Password" json:"Password"`
+	Role      string `bson:"Role" json:"Role"`
 
-	VerficationCode      string   `bson:"VerficationCode" json:"VerficationCode"`
-	Activated            bool     `bson:"Activated" json:"Activated"`
-	LastCodeRequest      int64    `bson:"LastCodeRequest" json:"LastCodeRequest"`
-	Identifiers          []string `bson:"Identifiers" json:"Identifiers"`
+	RefreshToken string `bson:"RefreshToken" json:"RefreshToken"`
+
+	VerficationCode string   `bson:"VerficationCode" json:"VerficationCode"`
+	Activated       bool     `bson:"Activated" json:"Activated"`
+	LastCodeRequest int64    `bson:"LastCodeRequest" json:"LastCodeRequest"`
+	Identifiers     []string `bson:"Identifiers" json:"Identifiers"`
 }
 
 // NewUser returns a new user.
-func NewUser(firstName string, lastName string, email string, password string, Role string, TotalImages int) (*User, error) {
+func NewUser(firstName string, lastName string, email string, password string, Role string) (*User, error) {
 
 	hashedPassword, err := generatePassword(password)
 	if err != nil {
@@ -40,16 +40,16 @@ func NewUser(firstName string, lastName string, email string, password string, R
 	}
 
 	user := &User{
-		FirstName:            firstName,
-		LastName:             lastName,
-		Email:                email,
-		Password:             hashedPassword,
-		Role:                 Role,	
-		RefreshToken:         "",
-		VerficationCode:      code,
-		Activated:            false,
-		LastCodeRequest:      time.Now().Unix(),
-		Identifiers:          []string{},
+		FirstName:       firstName,
+		LastName:        lastName,
+		Email:           email,
+		Password:        hashedPassword,
+		Role:            Role,
+		RefreshToken:    "",
+		VerficationCode: code,
+		Activated:       false,
+		LastCodeRequest: time.Now().Unix(),
+		Identifiers:     []string{},
 	}
 
 	return user, nil
@@ -94,16 +94,16 @@ func (user *User) validatePassword(password string) error {
 // Clone returns a clone of a user.
 func (user *User) Clone() *User {
 	return &User{
-		FirstName:            user.FirstName,
-		LastName:             user.LastName,
-		Email:                user.Email,
-		Password:             user.Password,
-		Role:                 user.Role,
-		RefreshToken:         user.RefreshToken,
-		VerficationCode:      user.VerficationCode,
-		Activated:            user.Activated,
-		LastCodeRequest:      user.LastCodeRequest,
-		Identifiers:          user.Identifiers,
+		FirstName:       user.FirstName,
+		LastName:        user.LastName,
+		Email:           user.Email,
+		Password:        user.Password,
+		Role:            user.Role,
+		RefreshToken:    user.RefreshToken,
+		VerficationCode: user.VerficationCode,
+		Activated:       user.Activated,
+		LastCodeRequest: user.LastCodeRequest,
+		Identifiers:     user.Identifiers,
 	}
 }
 

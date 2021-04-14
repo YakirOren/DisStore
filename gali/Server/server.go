@@ -18,7 +18,7 @@ import (
 func accessibleRoles() map[string][]string {
 	const path = "/gali.gali/"
 	return map[string][]string{
-		path + "GetUserInfo":     {"user"},
+		path + "GetUserInfo": {"user"},
 	}
 
 }
@@ -52,16 +52,19 @@ func main() {
 		log.Fatal("❌\n", err)
 	}
 
+	discordManager := services.NewDiscordManager(config.FileChannel, config.DiscordToken)
+	defer discordManager.Client.Gateway().StayConnectedUntilInterrupted()
+
 	authServer := services.NewAuthServer(*mongoDBWrapper, jwtManager, emailManager)
-	logic := services.NewPayeetServer(*mongoDBWrapper, jwtManager)
+	logic := services.NewGaliServer(*mongoDBWrapper, jwtManager, discordManager)
 
 	interceptor := services.NewAuthInterceptor(jwtManager, accessibleRoles())
 	srv := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptor.Unary()),
 	)
 
-	pb.RegisterPayeetAuthServer(srv, authServer)
-	pb.RegisterPayeetServer(srv, logic)
+	pb.RegisterGaliAuthServer(srv, authServer)
+	pb.RegisterGaliServer(srv, logic)
 	reflection.Register(srv)
 
 	log.Infof("Starting server on port [%s]", config.Port)
@@ -72,7 +75,7 @@ func main() {
 	log.Info("Done! ✅")
 
 	log.Info("Serving... 🥳")
-	
+
 	//log.Info("All logs now will be logged to the MongoDB database!... 📃")
 	//log.SetOutput(mongoDBWrapper)
 

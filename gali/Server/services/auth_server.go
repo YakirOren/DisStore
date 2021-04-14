@@ -22,12 +22,11 @@ type AuthServer struct {
 	mongoDBWrapper MongoDBWrapper
 	jwtManager     *JWTManager
 	emailManager   *EmailManager
-	TotalImages    int
 }
 
 // NewAuthServer creates a new authentication server
-func NewAuthServer(mongoDBWrapper MongoDBWrapper, jwtManager *JWTManager, emailManager *EmailManager, TotalImages int) *AuthServer {
-	return &AuthServer{mongoDBWrapper, jwtManager, emailManager, TotalImages}
+func NewAuthServer(mongoDBWrapper MongoDBWrapper, jwtManager *JWTManager, emailManager *EmailManager) *AuthServer {
+	return &AuthServer{mongoDBWrapper, jwtManager, emailManager}
 }
 
 // Login checks if the details are good and sends a new jet token to the user
@@ -81,7 +80,6 @@ func (server *AuthServer) Login(ctx context.Context, req *pb.LoginRequest) (*pb.
 		}
 	}
 
-
 	log.WithFields(log.Fields{"email": user.Email}).Info("Login")
 
 	// sending a new JWT token, expire time, new refresh token.
@@ -120,8 +118,7 @@ func (server *AuthServer) RefreshToken(ctx context.Context, req *pb.RefreshToken
 
 }
 
-
-func (server *AuthServer) ValidatePassword(firstName , lastName , email , password string) error {
+func (server *AuthServer) ValidatePassword(firstName, lastName, email, password string) error {
 
 	passwordValidator := validator.New(
 		validator.MinLength(
@@ -152,15 +149,15 @@ func (server *AuthServer) ValidatePassword(firstName , lastName , email , passwo
 // Register creates a new user.
 func (server *AuthServer) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.StatusResponse, error) {
 
-	user, err := NewUser(req.GetFirstName(), req.GetLastName(), req.GetMail(), req.GetPassword(), "user", server.TotalImages)
+	user, err := NewUser(req.GetFirstName(), req.GetLastName(), req.GetMail(), req.GetPassword(), "user")
 
 	if err != nil {
 		return nil, err
 	}
 	err = server.ValidatePassword(req.GetFirstName(), req.GetLastName(), req.GetMail(), req.GetPassword())
-	if err != nil{
+	if err != nil {
 		return nil, err
-	}	
+	}
 
 	if !IsEmailValid(req.GetMail()) {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid mail format!")
@@ -274,7 +271,7 @@ func (server *AuthServer) GetVerifyCode(ctx context.Context, req *pb.CodeRequest
 	// generate a new verification code.
 	user.VerficationCode, err = server.refreshCode(user)
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
 
 	// send the user a mail with a new verification code.
@@ -304,7 +301,7 @@ func (server *AuthServer) ResetPassword(ctx context.Context, req *pb.ResetPasswo
 		// generate a new verification code.
 		user.VerficationCode, err = server.refreshCode(user)
 		if err != nil {
-			return nil, err 
+			return nil, err
 		}
 
 		// send the user a mail with a new verification code.
@@ -323,9 +320,9 @@ func (server *AuthServer) ResetPassword(ctx context.Context, req *pb.ResetPasswo
 	err = server.ValidatePassword(user.FirstName,
 		user.LastName,
 		user.Email, req.GetPassword())
-	if err != nil{
+	if err != nil {
 		return nil, err
-	}	
+	}
 
 	err = server.mongoDBWrapper.ChangePassword(user.Email, req.GetPassword())
 	if err != nil {
@@ -335,15 +332,14 @@ func (server *AuthServer) ResetPassword(ctx context.Context, req *pb.ResetPasswo
 	// generate a new verification code so the same code cannot be used in order to change the password again
 	user.VerficationCode, err = server.refreshCode(user)
 	if err != nil {
-		return nil, err 
+		return nil, err
 	}
-
 
 	return &pb.StatusResponse{}, nil
 }
 
 // refreshCode generates a new verification code and updates the database.
-func (server *AuthServer) refreshCode(user *User) (string, error){
+func (server *AuthServer) refreshCode(user *User) (string, error) {
 	// generate a new verification code.
 	var err error
 	user.VerficationCode, err = generateNewCode(6)

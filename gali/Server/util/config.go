@@ -9,6 +9,7 @@ import (
 // Config holds the config data
 type Config struct {
 	DiscordToken                  string   `mapstructure:"TOKEN"`
+	FileChannel 				  string   `mapstructure:"FILE_CHANNEL"`
 
 	Port                          string   `mapstructure:"PORT"`
 	AccessTokenKey                string   `mapstructure:"ACCESS_TOKEN_KEY"`
@@ -29,6 +30,8 @@ func LoadConfig(path string) (c Config, err error) {
 	log.Infof("Loading config...")
 
 	c.DiscordToken = os.Getenv("TOKEN")
+	c.FileChannel = os.Getenv("FILE_CHANNEL")
+	
 	c.Port = os.Getenv("PORT")
 	c.AccessTokenKey = os.Getenv("ACCESS_TOKEN_KEY")
 	c.RefreshTokenKey = os.Getenv("REFRESH_TOKEN_KEY")
