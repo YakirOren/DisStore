@@ -40,7 +40,7 @@ func main() {
 		log.Fatal("❌\n", err)
 	}
 
-	mongoDBWrapper := services.NewMongoDBWrapper(config.ConnectionString, config.DBName, config.UserCollection, config.TransactionCollection, config.LogsCollection)
+	mongoDBWrapper := services.NewMongoDBWrapper(config.ConnectionString, config.DBName, config.UserCollection, config.FileCollection, config.LogsCollection)
 	log.Info("Connecting to DB...")
 	mongoDBWrapper.Connect()
 	defer mongoDBWrapper.Disconnect()

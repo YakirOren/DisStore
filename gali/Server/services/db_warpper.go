@@ -49,9 +49,9 @@ type DBWrapper interface {
 // MongoDBWrapper is a warpper for mongodb
 type MongoDBWrapper struct { // change name to db wapper or something
 
-	// add collection for transactions.
+	// add collection for Files.
 
-	TransactionsCollection *mongo.Collection
+	FilesCollection *mongo.Collection
 	UsersCollection        *mongo.Collection
 	LogsCollection         *mongo.Collection
 	Client                 *mongo.Client
@@ -59,7 +59,7 @@ type MongoDBWrapper struct { // change name to db wapper or something
 }
 
 // NewMongoDBWrapper creates and returns a new object of the mongo wrapper
-func NewMongoDBWrapper(ConnectionString, DBName, UserCollection, TransactionCollection, LogsCollection string) *MongoDBWrapper {
+func NewMongoDBWrapper(ConnectionString, DBName, UserCollection, FileCollection, LogCollection string) *MongoDBWrapper {
 
 	client, err := mongo.NewClient(options.Client().ApplyURI(ConnectionString))
 	if err != nil {
@@ -67,9 +67,9 @@ func NewMongoDBWrapper(ConnectionString, DBName, UserCollection, TransactionColl
 	}
 
 	return &MongoDBWrapper{
-		TransactionsCollection: client.Database(DBName).Collection(TransactionCollection),
+		FilesCollection: 		client.Database(DBName).Collection(FileCollection),
 		UsersCollection:        client.Database(DBName).Collection(UserCollection),
-		LogsCollection:         client.Database(DBName).Collection(LogsCollection),
+		LogsCollection:         client.Database(DBName).Collection(LogCollection),
 		Client:                 client,
 	}
 }
@@ -136,7 +136,7 @@ func (store *MongoDBWrapper) AddUser(user *User) error {
 // AddFile adds a new file to the file collection.
 func (store *MongoDBWrapper) AddFile(t *File) error {
 
-	_, err := store.TransactionsCollection.InsertOne(
+	_, err := store.FilesCollection.InsertOne(
 		context.TODO(),
 		t.ToBson(),
 	)
@@ -235,7 +235,7 @@ func (store *MongoDBWrapper) ChangeFieldValue(mail string, fieldName string, val
 
 
 
-// GetFullHistory will return a transaction array of all the transactions of the given user
+// GetFullHistory will return a File array of all the Files of the given user
 func (store *MongoDBWrapper) GetFiles(mail string) ([]*File, error) {
 
 	findOptions := options.Find()
@@ -246,7 +246,7 @@ func (store *MongoDBWrapper) GetFiles(mail string) ([]*File, error) {
 		return nil, err
 	}
 
-	cursor, err := store.TransactionsCollection.Find(context.TODO(), bson.M{"$or": []interface{}{bson.M{"Sender": mail}, bson.M{"Receiver": mail}}}, findOptions)
+	cursor, err := store.FilesCollection.Find(context.TODO(), bson.M{"$or": []interface{}{bson.M{"Sender": mail}, bson.M{"Receiver": mail}}}, findOptions)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Wrong mail")
 	}

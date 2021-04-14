@@ -18,12 +18,10 @@ type Config struct {
 	ConnectionString              string   `mapstructure:"CONNECTION_STRING"`
 	DBName                        string   `mapstructure:"DB_NAME"`
 	UserCollection                string   `mapstructure:"USER_COLLECTION"`
-	TransactionCollection         string   `mapstructure:"TRANSACTION_COLLECTION"`
+	FileCollection         		  string   `mapstructure:"FILE_COLLECTION"`
 	LogsCollection                string   `mapstructure:"LOGS_COLLECTION"`
-	
 	SystemEmail                   string   `mapstructure:"SYSTEM_EMAIL"`
-	SystemEmailPassword           string   `mapstructure:"SYSTEM_EMAIL_PASSWORD"`
-	
+	SystemEmailPassword           string   `mapstructure:"SYSTEM_EMAIL_PASSWORD"`	
 }
 
 // LoadConfig is used to load the config from the config file.
@@ -39,7 +37,7 @@ func LoadConfig(path string) (c Config, err error) {
 	c.ConnectionString = os.Getenv("CONNECTION_STRING")
 	c.DBName = os.Getenv("DB_NAME")
 	c.UserCollection = os.Getenv("USER_COLLECTION")
-	c.TransactionCollection = os.Getenv("TRANSACTION_COLLECTION")
+	c.FileCollection = os.Getenv("FILE_COLLECTION")
 	c.LogsCollection = os.Getenv("LOGS_COLLECTION")
 	
 	c.SystemEmail = os.Getenv("SYSTEM_EMAIL")
