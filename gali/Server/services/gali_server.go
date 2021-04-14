@@ -41,5 +41,31 @@ func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoReques
 }
 
 func (server *GaliServer) GetFiles(in *pb.FileRequest, stream pb.Gali_GetFilesServer) error {
-	return status.Errorf(codes.Unimplemented, "")
+	// get the claims from ctx.
+	claims, err := server.jwtManager.ExtractClaims(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	user, err := server.mongoDBWrapper.GetUserByEmail(claims.Email)
+	if err != nil {
+		return err
+	}
+
+	// get the all files that are owned by the user.
+	files, err := server.mongoDBWrapper.GetUserFiles(user.Email)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	// send the files to the user in a stream.
+	for _, file := range files {
+		stream.Send(&pb.GenericFile{Owner: file.Owner, Name: file.Name, Fragments: file.Fragments, Time: file.Time})
+	}
+	return nil
+}
+
+func (server *GaliServer) Upload(ctx context.Context) error {
+
+	return nil
 }

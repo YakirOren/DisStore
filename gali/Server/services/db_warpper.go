@@ -18,29 +18,29 @@ import (
 
 // DBWrapper is an interface that handles fetching and updating the DB
 type DBWrapper interface {
+
+	// Connection to the DB.
 	Connect() error
 	Disconnect() error
+	//log
+	Write(message []byte) (int, error) // we must implement an io.Writer function to log into mongo
 
+	// users
+	ActivateUser(mail string) error
 	AddUser(user *User) error
-	AddFile(t *File) error
-
 	GetUserByEmail(mail string) (*User, error)
 	GetAllUsers() (a []*User, err error)
 
-	SetRefreshToken(mail string, refreshToken string) error
-	
-	GetFiles(mail string) ([]*File, error)
+	// Files
+	AddFile(t *File) error
+	GetUserFiles(mail string) ([]*File, error)
 
-	Write(message []byte) (int, error) // we must implement an io.Writer function to log into mongo
-
-
-
-	ActivateUser(mail string) error
-
+	// auth
 	CheckIdentifier(mail, identifier string) (bool, error)
 	AddIdentifier(mail, identifier string) error
 
 	SetVerficationCode(mail string, code string) error
+	SetRefreshToken(mail string, refreshToken string) error
 	ResetLastCodeRequest(mail string) error
 
 	ChangePassword(mail, newPassword string) error
@@ -52,10 +52,9 @@ type MongoDBWrapper struct { // change name to db wapper or something
 	// add collection for Files.
 
 	FilesCollection *mongo.Collection
-	UsersCollection        *mongo.Collection
-	LogsCollection         *mongo.Collection
-	Client                 *mongo.Client
-
+	UsersCollection *mongo.Collection
+	LogsCollection  *mongo.Collection
+	Client          *mongo.Client
 }
 
 // NewMongoDBWrapper creates and returns a new object of the mongo wrapper
@@ -67,10 +66,10 @@ func NewMongoDBWrapper(ConnectionString, DBName, UserCollection, FileCollection,
 	}
 
 	return &MongoDBWrapper{
-		FilesCollection: 		client.Database(DBName).Collection(FileCollection),
-		UsersCollection:        client.Database(DBName).Collection(UserCollection),
-		LogsCollection:         client.Database(DBName).Collection(LogCollection),
-		Client:                 client,
+		FilesCollection: client.Database(DBName).Collection(FileCollection),
+		UsersCollection: client.Database(DBName).Collection(UserCollection),
+		LogsCollection:  client.Database(DBName).Collection(LogCollection),
+		Client:          client,
 	}
 }
 
@@ -116,7 +115,6 @@ func formatUser(user *User) *User {
 
 	return user
 }
-
 
 // AddUser adds a new user to the database.
 func (store *MongoDBWrapper) AddUser(user *User) error {
@@ -232,11 +230,8 @@ func (store *MongoDBWrapper) ChangeFieldValue(mail string, fieldName string, val
 	return nil
 }
 
-
-
-
-// GetFullHistory will return a File array of all the Files of the given user
-func (store *MongoDBWrapper) GetFiles(mail string) ([]*File, error) {
+// GetUserFiles will return a File array of all the Files of the given user
+func (store *MongoDBWrapper) GetUserFiles(mail string) ([]*File, error) {
 
 	findOptions := options.Find()
 	findOptions.SetSort(bson.M{"Time": 1}) // sort from newest to oldest
@@ -246,7 +241,7 @@ func (store *MongoDBWrapper) GetFiles(mail string) ([]*File, error) {
 		return nil, err
 	}
 
-	cursor, err := store.FilesCollection.Find(context.TODO(), bson.M{"$or": []interface{}{bson.M{"Sender": mail}, bson.M{"Receiver": mail}}}, findOptions)
+	cursor, err := store.FilesCollection.Find(context.TODO(), bson.M{"Owner": strings.ToLower(mail)}, findOptions)
 	if err != nil {
 		return nil, status.Errorf(codes.NotFound, "Wrong mail")
 	}
@@ -258,7 +253,6 @@ func (store *MongoDBWrapper) GetFiles(mail string) ([]*File, error) {
 
 	return senderResults, nil
 }
-
 
 // Write adds a log to the database in the logs collecitons
 func (store *MongoDBWrapper) Write(message []byte) (int, error) {
@@ -279,7 +273,6 @@ func (store *MongoDBWrapper) Write(message []byte) (int, error) {
 
 	return len(message), nil
 }
-
 
 // CheckIdentifier will check if the given device identifier was logged before, true if yes else false
 func (store *MongoDBWrapper) CheckIdentifier(mail, identifier string) (bool, error) {

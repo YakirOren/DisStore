@@ -8,6 +8,9 @@ message RegisterRequest{
     string Password = 4;
     
 }
+
+// a common return message, when returned with no error 
+// it means the operation was successful. 
 message StatusResponse{
 }
 
@@ -15,7 +18,7 @@ message RefreshTokenRequest{
     string RefreshToken = 1;
 }
 
-// Login
+
 message LoginRequest{
     string Mail = 1;
     string Password = 2;
@@ -25,6 +28,8 @@ message LoginRequest{
 
 message LoginResponse{
     string AccessToken = 1;
+
+    // expiration time of the access token.
     int64 ExpiresOn = 2;
     string RefreshToken = 3;
 
@@ -38,13 +43,6 @@ message UserInfoResponse{
     string FirstName = 1;
     string LastName = 2;
     string Mail = 4;
-    int64 ImageID = 5;
-}
-
-
-message GenericUser{
-    string Mail = 1;
-    int64 ImageID = 2;
 }
 
 
@@ -52,8 +50,19 @@ message FileRequest{
 
 }
 
-// The file that is stored in in the database.
 message GenericFile{
+
+    // the user who uploaded the file.
+    string Owner = 1;
+    
+    // name of the file
+    string Name = 2;
+
+    // an array of URLs from discord's cdn.
+    repeated string Fragments = 3;
+
+    // time of file creation
+    int64 Time =4;
 }
 
 message VerifyRequest{
@@ -71,6 +80,16 @@ message ResetPasswordRequest{
     string Code = 3;
 }
 
+
+/*
+when a file is uploaded to the server we plan on spliting it into 
+smaller chunks 
+*/
+message FileChunk {
+    bytes Content = 1;
+}
+
+
 service gali_auth{
     rpc Login (LoginRequest) returns (LoginResponse);
     rpc RefreshToken (RefreshTokenRequest) returns (LoginResponse);
@@ -84,7 +103,7 @@ service gali{
 
     rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
     rpc GetFiles(FileRequest) returns (stream GenericFile);
-    //rpc UploadFile() returns 
+    rpc Upload(stream FileChunk) returns (StatusResponse) {}
 
 
 }

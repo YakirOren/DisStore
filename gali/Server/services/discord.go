@@ -96,7 +96,7 @@ func defragmentFile(outFileName string) {
 }
 
 // UploadFile fragments the given file and sends the fragments to the discord file channel.
-func (dis *DiscordManager) UploadFile(fileName string) {
+func (dis *DiscordManager) UploadFile(fileName string) (URLs []string) {
 
 	log.Println("fragmenting file")
 	fragmentFile("nasa.jpg") // file to fragment and upload
@@ -127,9 +127,12 @@ func (dis *DiscordManager) UploadFile(fileName string) {
 
 		//  discord cdn URL of the file
 		log.Println(discordMsg.Attachments[0].URL)
+		URLs = append(URLs, discordMsg.Attachments[0].URL)
 
-		// return an array of URLs
-		// and store the fragments in the database
 	}
+
+	return URLs
+	// return an array of URLs
+	// and store the fragments in the database
 
 }

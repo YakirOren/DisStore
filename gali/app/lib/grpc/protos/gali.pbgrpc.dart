@@ -187,6 +187,10 @@ class galiClient extends $grpc.Client {
       '/gali.gali/GetFiles',
       ($0.FileRequest value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.GenericFile.fromBuffer(value));
+  static final _$upload = $grpc.ClientMethod<$0.FileChunk, $0.StatusResponse>(
+      '/gali.gali/Upload',
+      ($0.FileChunk value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.StatusResponse.fromBuffer(value));
 
   galiClient($grpc.ClientChannel channel,
       {$grpc.CallOptions? options,
@@ -204,6 +208,12 @@ class galiClient extends $grpc.Client {
     return $createStreamingCall(
         _$getFiles, $async.Stream.fromIterable([request]),
         options: options);
+  }
+
+  $grpc.ResponseFuture<$0.StatusResponse> upload(
+      $async.Stream<$0.FileChunk> request,
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(_$upload, request, options: options).single;
   }
 }
 
@@ -225,6 +235,13 @@ abstract class galiServiceBase extends $grpc.Service {
         true,
         ($core.List<$core.int> value) => $0.FileRequest.fromBuffer(value),
         ($0.GenericFile value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FileChunk, $0.StatusResponse>(
+        'Upload',
+        upload,
+        true,
+        false,
+        ($core.List<$core.int> value) => $0.FileChunk.fromBuffer(value),
+        ($0.StatusResponse value) => value.writeToBuffer()));
   }
 
   $async.Future<$0.UserInfoResponse> getUserInfo_Pre(
@@ -241,4 +258,6 @@ abstract class galiServiceBase extends $grpc.Service {
       $grpc.ServiceCall call, $0.UserInfoRequest request);
   $async.Stream<$0.GenericFile> getFiles(
       $grpc.ServiceCall call, $0.FileRequest request);
+  $async.Future<$0.StatusResponse> upload(
+      $grpc.ServiceCall call, $async.Stream<$0.FileChunk> request);
 }

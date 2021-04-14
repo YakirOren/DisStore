@@ -373,7 +373,6 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'FirstName', protoName: 'FirstName')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'LastName', protoName: 'LastName')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Mail', protoName: 'Mail')
-    ..aInt64(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ImageID', protoName: 'ImageID')
     ..hasRequiredFields = false
   ;
 
@@ -382,7 +381,6 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     $core.String? firstName,
     $core.String? lastName,
     $core.String? mail,
-    $fixnum.Int64? imageID,
   }) {
     final _result = create();
     if (firstName != null) {
@@ -393,9 +391,6 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     }
     if (mail != null) {
       _result.mail = mail;
-    }
-    if (imageID != null) {
-      _result.imageID = imageID;
     }
     return _result;
   }
@@ -446,76 +441,6 @@ class UserInfoResponse extends $pb.GeneratedMessage {
   $core.bool hasMail() => $_has(2);
   @$pb.TagNumber(4)
   void clearMail() => clearField(4);
-
-  @$pb.TagNumber(5)
-  $fixnum.Int64 get imageID => $_getI64(3);
-  @$pb.TagNumber(5)
-  set imageID($fixnum.Int64 v) { $_setInt64(3, v); }
-  @$pb.TagNumber(5)
-  $core.bool hasImageID() => $_has(3);
-  @$pb.TagNumber(5)
-  void clearImageID() => clearField(5);
-}
-
-class GenericUser extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GenericUser', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Mail', protoName: 'Mail')
-    ..aInt64(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'ImageID', protoName: 'ImageID')
-    ..hasRequiredFields = false
-  ;
-
-  GenericUser._() : super();
-  factory GenericUser({
-    $core.String? mail,
-    $fixnum.Int64? imageID,
-  }) {
-    final _result = create();
-    if (mail != null) {
-      _result.mail = mail;
-    }
-    if (imageID != null) {
-      _result.imageID = imageID;
-    }
-    return _result;
-  }
-  factory GenericUser.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory GenericUser.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  GenericUser clone() => GenericUser()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  GenericUser copyWith(void Function(GenericUser) updates) => super.copyWith((message) => updates(message as GenericUser)) as GenericUser; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static GenericUser create() => GenericUser._();
-  GenericUser createEmptyInstance() => create();
-  static $pb.PbList<GenericUser> createRepeated() => $pb.PbList<GenericUser>();
-  @$core.pragma('dart2js:noInline')
-  static GenericUser getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GenericUser>(create);
-  static GenericUser? _defaultInstance;
-
-  @$pb.TagNumber(1)
-  $core.String get mail => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set mail($core.String v) { $_setString(0, v); }
-  @$pb.TagNumber(1)
-  $core.bool hasMail() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearMail() => clearField(1);
-
-  @$pb.TagNumber(2)
-  $fixnum.Int64 get imageID => $_getI64(1);
-  @$pb.TagNumber(2)
-  set imageID($fixnum.Int64 v) { $_setInt64(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasImageID() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearImageID() => clearField(2);
 }
 
 class FileRequest extends $pb.GeneratedMessage {
@@ -549,11 +474,35 @@ class FileRequest extends $pb.GeneratedMessage {
 
 class GenericFile extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GenericFile', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Owner', protoName: 'Owner')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Name', protoName: 'Name')
+    ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Fragments', protoName: 'Fragments')
+    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Time', protoName: 'Time')
     ..hasRequiredFields = false
   ;
 
   GenericFile._() : super();
-  factory GenericFile() => create();
+  factory GenericFile({
+    $core.String? owner,
+    $core.String? name,
+    $core.Iterable<$core.String>? fragments,
+    $fixnum.Int64? time,
+  }) {
+    final _result = create();
+    if (owner != null) {
+      _result.owner = owner;
+    }
+    if (name != null) {
+      _result.name = name;
+    }
+    if (fragments != null) {
+      _result.fragments.addAll(fragments);
+    }
+    if (time != null) {
+      _result.time = time;
+    }
+    return _result;
+  }
   factory GenericFile.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory GenericFile.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -574,6 +523,36 @@ class GenericFile extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static GenericFile getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GenericFile>(create);
   static GenericFile? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get owner => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set owner($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasOwner() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearOwner() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get name => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set name($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasName() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearName() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<$core.String> get fragments => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get time => $_getI64(3);
+  @$pb.TagNumber(4)
+  set time($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTime() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTime() => clearField(4);
 }
 
 class VerifyRequest extends $pb.GeneratedMessage {
@@ -757,5 +736,52 @@ class ResetPasswordRequest extends $pb.GeneratedMessage {
   $core.bool hasCode() => $_has(2);
   @$pb.TagNumber(3)
   void clearCode() => clearField(3);
+}
+
+class FileChunk extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FileChunk', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
+    ..a<$core.List<$core.int>>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Content', $pb.PbFieldType.OY, protoName: 'Content')
+    ..hasRequiredFields = false
+  ;
+
+  FileChunk._() : super();
+  factory FileChunk({
+    $core.List<$core.int>? content,
+  }) {
+    final _result = create();
+    if (content != null) {
+      _result.content = content;
+    }
+    return _result;
+  }
+  factory FileChunk.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory FileChunk.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  FileChunk clone() => FileChunk()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  FileChunk copyWith(void Function(FileChunk) updates) => super.copyWith((message) => updates(message as FileChunk)) as FileChunk; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static FileChunk create() => FileChunk._();
+  FileChunk createEmptyInstance() => create();
+  static $pb.PbList<FileChunk> createRepeated() => $pb.PbList<FileChunk>();
+  @$core.pragma('dart2js:noInline')
+  static FileChunk getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FileChunk>(create);
+  static FileChunk? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.List<$core.int> get content => $_getN(0);
+  @$pb.TagNumber(1)
+  set content($core.List<$core.int> v) { $_setBytes(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasContent() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearContent() => clearField(1);
 }
 
