@@ -1,3 +1,11 @@
+
+# Created by https://www.toptal.com/developers/gitignore/api/macos,go,dotenv
+# Edit at https://www.toptal.com/developers/gitignore?templates=macos,go,dotenv
+
+### dotenv ###
+*.env
+
+### Go ###
 # Binaries for programs and plugins
 *.exe
 *.exe~
@@ -11,18 +19,40 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# config
-*.env
-
-# OS generated files #
-######################
-*.DS_Store
-*.DS_Store?
-*._*
-*.Spotlight-V100
-*.Trashes
-ehthumbs.db
-Thumbs.db
-
 # Dependency directories (remove the comment below to include it)
-vendor/
+# vendor/
+
+### Go Patch ###
+/vendor/
+/Godeps/
+
+### macOS ###
+# General
+*.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon must end with two \r
+Icon
+
+
+# Thumbnails
+._*
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# End of https://www.toptal.com/developers/gitignore/api/macos,go,dotenv

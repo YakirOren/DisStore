@@ -121,7 +121,9 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: frags, Time: time.Now().Unix()})
 
 	// tell the users that everything is OK.
-	stream.SendAndClose(&pb.StatusResponse{})
-
+	err = stream.SendAndClose(&pb.StatusResponse{})
+	if err != nil {
+		return status.Errorf(codes.Unknown, "stream fail")
+	}
 	return nil
 }
