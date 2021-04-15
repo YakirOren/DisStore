@@ -1,6 +1,7 @@
 syntax= "proto3";
 package gali;
 
+
 message RegisterRequest{
     string FirstName = 1;
     string LastName = 2;
@@ -86,8 +87,21 @@ when a file is uploaded to the server we plan on spliting it into
 smaller chunks 
 */
 message FileChunk {
-    bytes Content = 1;
+
+    // only one of the fields in data will have info every time
+    // 1 or 2
+    // https://developers.google.com/protocol-buffers/docs/proto3#oneof
+    oneof data{
+        FileInfo metadata = 1;
+        bytes Content = 2;
+    }
 }
+// metadata about a file
+message FileInfo{
+    string Name = 1;
+    string Type = 2;
+}
+
 
 
 service gali_auth{

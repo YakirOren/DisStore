@@ -139,9 +139,24 @@ final $typed_data.Uint8List resetPasswordRequestDescriptor = $convert.base64Deco
 const FileChunk$json = const {
   '1': 'FileChunk',
   '2': const [
-    const {'1': 'Content', '3': 1, '4': 1, '5': 12, '10': 'Content'},
+    const {'1': 'metadata', '3': 1, '4': 1, '5': 11, '6': '.gali.FileInfo', '9': 0, '10': 'metadata'},
+    const {'1': 'Content', '3': 2, '4': 1, '5': 12, '9': 0, '10': 'Content'},
+  ],
+  '8': const [
+    const {'1': 'data'},
   ],
 };
 
 /// Descriptor for `FileChunk`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileChunkDescriptor = $convert.base64Decode('CglGaWxlQ2h1bmsSGAoHQ29udGVudBgBIAEoDFIHQ29udGVudA==');
+final $typed_data.Uint8List fileChunkDescriptor = $convert.base64Decode('CglGaWxlQ2h1bmsSLAoIbWV0YWRhdGEYASABKAsyDi5nYWxpLkZpbGVJbmZvSABSCG1ldGFkYXRhEhoKB0NvbnRlbnQYAiABKAxIAFIHQ29udGVudEIGCgRkYXRh');
+@$core.Deprecated('Use fileInfoDescriptor instead')
+const FileInfo$json = const {
+  '1': 'FileInfo',
+  '2': const [
+    const {'1': 'Name', '3': 1, '4': 1, '5': 9, '10': 'Name'},
+    const {'1': 'Type', '3': 2, '4': 1, '5': 9, '10': 'Type'},
+  ],
+};
+
+/// Descriptor for `FileInfo`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List fileInfoDescriptor = $convert.base64Decode('CghGaWxlSW5mbxISCgROYW1lGAEgASgJUgROYW1lEhIKBFR5cGUYAiABKAlSBFR5cGU=');

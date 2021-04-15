@@ -1,6 +1,7 @@
 package services
 
 import (
+	"bytes"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -41,15 +42,15 @@ func check(e error) {
 
 // function will fragment the given file into multiple files with maximum size of the const
 // "maximumSize" and will save them to the temp folder
-func fragmentFile(fileName string) {
-	file, err := os.Open(fileName)
-	check(err)
-	defer file.Close()
+func fragmentFile(file bytes.Buffer, fileSize int64) {
+	// file, err := os.Open(fileName)
+	// check(err)
+	// defer file.Close()
 
-	uploadFileInfo, err := file.Stat()
-	check(err)
+	// uploadFileInfo, err := file.Stat()
+	// check(err)
 
-	fileSize := uploadFileInfo.Size()
+	// fileSize := uploadFileInfo.Size()
 
 	fileCount := fileSize/maximumSize + 1
 
@@ -96,10 +97,10 @@ func defragmentFile(outFileName string) {
 }
 
 // UploadFile fragments the given file and sends the fragments to the discord file channel.
-func (dis *DiscordManager) UploadFile(fileName string) (URLs []string) {
+func (dis *DiscordManager) UploadFile(fileData bytes.Buffer, fileSize int64) (URLs []string) {
 
 	log.Println("fragmenting file")
-	fragmentFile("nasa.jpg") // file to fragment and upload
+	fragmentFile(fileData, fileSize) // file to fragment and upload
 	log.Println("done fragmenting file")
 
 	// get all the files in the folder
@@ -132,7 +133,5 @@ func (dis *DiscordManager) UploadFile(fileName string) (URLs []string) {
 	}
 
 	return URLs
-	// return an array of URLs
-	// and store the fragments in the database
-
+	// return array of URLs from discords CDN
 }
