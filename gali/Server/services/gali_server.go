@@ -86,9 +86,17 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	fileSize := int64(0)
 	for {
-		log.Println("wating for data")
+		//log.Println(fileSize)
+		err := contextError(stream.Context())
+		if err != nil {
+			return err
+		}
+
+		log.Print("waiting to receive more data")
+
+		req, err := stream.Recv()
 		if err == io.EOF {
-			log.Println("end of the file")
+			log.Print("no more data")
 			break
 		}
 		if err != nil {
@@ -126,4 +134,15 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 		return status.Errorf(codes.Unknown, "stream fail")
 	}
 	return nil
+}
+
+func contextError(ctx context.Context) error {
+	switch ctx.Err() {
+	case context.Canceled:
+		return status.Error(codes.Canceled, "request is canceled")
+	case context.DeadlineExceeded:
+		return status.Error(codes.DeadlineExceeded, "deadline is exceeded")
+	default:
+		return nil
+	}
 }
