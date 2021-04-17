@@ -44,7 +44,7 @@ func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoReques
 	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email}, nil
 }
 
-func (server *GaliServer) GetFiles(in *pb.FileRequest, stream pb.Gali_GetFilesServer) error {
+func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllFilesServer) error {
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(stream.Context())
 	if err != nil {
@@ -64,9 +64,75 @@ func (server *GaliServer) GetFiles(in *pb.FileRequest, stream pb.Gali_GetFilesSe
 
 	// send the files to the user in a stream.
 	for _, file := range files {
-		stream.Send(&pb.GenericFile{Owner: file.Owner, Name: file.Name, Fragments: file.Fragments, Time: file.Time})
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.String()}); err != nil {
+			return status.Errorf(codes.Internal, "Something went wrong!")
+		}
 	}
+
 	return nil
+}
+
+func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileInfo) (*pb.GenericFile, error) {
+
+	// get the claims from ctx.
+	claims, err := server.jwtManager.ExtractClaims(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := server.mongoDBWrapper.GetUserByEmail(claims.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := server.mongoDBWrapper.GetFile(in.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf(file.Owner)
+	log.Printf(user.Email)
+
+	// check if user owns the requested file.
+	if file.Owner == user.Email {
+		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String()}, Fragments: file.Fragments, CreationTime: file.Time}, nil
+	}
+	return nil, status.Errorf(codes.PermissionDenied, "you dont have the permissions to this resource")
+
+}
+
+func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileInfo) (*pb.StatusResponse, error) {
+
+	// get the claims from ctx.
+	claims, err := server.jwtManager.ExtractClaims(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := server.mongoDBWrapper.GetUserByEmail(claims.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	file, err := server.mongoDBWrapper.GetFile(in.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf(file.Owner)
+	log.Printf(user.Email)
+
+	// check if user owns the requested file.
+	if file.Owner == user.Email {
+		err = server.mongoDBWrapper.RemoveFile(in.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		return &pb.StatusResponse{}, nil
+	}
+	return nil, status.Errorf(codes.PermissionDenied, "you dont have the permissions to this resource")
+
 }
 
 func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
@@ -77,9 +143,8 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	// getting the metadata of the file.
 	fileName := req.GetMetadata().Name
-	fileType := req.GetMetadata().Type
 
-	log.Println(fileName, fileType)
+	log.Println(fileName)
 	//getting the content of the file.
 
 	fileData := bytes.Buffer{}
@@ -92,7 +157,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 			return err
 		}
 
-		log.Print("waiting to receive more data")
+		//log.Print("waiting to receive more data")
 
 		req, err := stream.Recv()
 		if err == io.EOF {
@@ -110,6 +175,10 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 		// add the new data to the data we already have.
 		_, err = fileData.Write(chunk)
+
+		//TODO: dont load the entire file on the ram
+		// upload parts of the file when uploading
+
 		if err != nil {
 			return status.Errorf(codes.Internal, "file writing failed")
 		}

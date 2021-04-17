@@ -7,6 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	codes "google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -33,6 +34,8 @@ type DBWrapper interface {
 
 	// Files
 	AddFile(t *File) error
+	RemoveFile(id string) error
+	GetFile(id string) (f *File, err error)
 	GetUserFiles(mail string) ([]*File, error)
 
 	// auth
@@ -146,6 +149,44 @@ func (store *MongoDBWrapper) AddFile(t *File) error {
 	return nil
 }
 
+func (store *MongoDBWrapper) RemoveFile(id string) error {
+
+	a, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+	result, err := store.FilesCollection.DeleteOne(
+		context.TODO(),
+		bson.M{"_id": a},
+	)
+
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	if result.DeletedCount == 0 {
+		return status.Errorf(codes.NotFound, "File not Found")
+	}
+
+	return nil
+}
+
+// GetFile returns the file with the given ID.
+func (store *MongoDBWrapper) GetFile(id string) (f *File, err error) {
+
+	a, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	err = store.FilesCollection.FindOne(context.TODO(), bson.M{"_id": a}).Decode(&f)
+
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "File was not found")
+	}
+	return
+}
+
 // GetUserByEmail finds a user in the database that have the given mail
 func (store *MongoDBWrapper) GetUserByEmail(mail string) (*User, error) {
 
@@ -166,6 +207,9 @@ func (store *MongoDBWrapper) GetAllUsers() (a []*User, err error) {
 		context.TODO(),
 		bson.D{},
 	)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Something went wrong!")
+	}
 
 	for cursor.Next(context.TODO()) {
 		elem := &User{}

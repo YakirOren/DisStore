@@ -2,14 +2,16 @@ package services
 
 import (
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // File struct contains info about a File
 type File struct {
-	Owner   string `bson:"Owner" json:"Owner"`
-	Name 	string `bson:"Name" json:"Name"`
-	Fragments   []string `bson:"Fragments" json:"Fragments"`
-	Time     int64  `bson:"Time" json:"Time"`
+	ID        primitive.ObjectID `bson:"_id" json:"id,omitempty"`
+	Owner     string             `bson:"Owner" json:"Owner"`
+	Name      string             `bson:"Name" json:"Name"`
+	Fragments []string           `bson:"Fragments" json:"Fragments"`
+	Time      int64              `bson:"Time" json:"Time"`
 }
 
 // ToBson truns the File object into bson
@@ -24,5 +26,3 @@ func (File *File) ToBson() bson.D {
 
 	return a
 }
-
-

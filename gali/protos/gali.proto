@@ -51,19 +51,19 @@ message FileRequest{
 
 }
 
+
 message GenericFile{
 
-    // the user who uploaded the file.
-    string Owner = 1;
-    
-    // name of the file
-    string Name = 2;
+    // info about the file
+    FileInfo metadata = 1;
+
+    // creation time of the file.
+    int64 creationTime = 3;
 
     // an array of URLs from discord's cdn.
-    repeated string Fragments = 3;
+    repeated string Fragments = 2;
 
-    // time of file creation
-    int64 Time =4;
+    
 }
 
 message VerifyRequest{
@@ -96,10 +96,14 @@ message FileChunk {
         bytes Content = 2;
     }
 }
+
 // metadata about a file
 message FileInfo{
+    // name of the file
     string Name = 1;
-    string Type = 2;
+    
+    // id of the file.
+    string Id = 2;
 }
 
 
@@ -116,7 +120,9 @@ service gali_auth{
 service gali{
 
     rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
-    rpc GetFiles(FileRequest) returns (stream GenericFile);
+    rpc GetAllFiles(FileRequest) returns (stream FileInfo);
+    rpc GetFile(FileInfo) returns (GenericFile);
+    rpc DeleteFile(FileInfo) returns (StatusResponse);
     rpc Upload(stream FileChunk) returns (StatusResponse) {}
 
 
