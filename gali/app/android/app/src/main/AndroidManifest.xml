@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.app">
+    package="com.example.gali">
    <application
-        android:label="app"
+        android:label="gali"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

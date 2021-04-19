@@ -64,7 +64,8 @@ func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllF
 
 	// send the files to the user in a stream.
 	for _, file := range files {
-		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.String()}); err != nil {
+
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.String()[10 : len(file.ID.String())-2]}); err != nil {
 			return status.Errorf(codes.Internal, "Something went wrong!")
 		}
 	}

@@ -474,32 +474,27 @@ class FileRequest extends $pb.GeneratedMessage {
 
 class GenericFile extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GenericFile', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
-    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Owner', protoName: 'Owner')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Name', protoName: 'Name')
-    ..pPS(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Fragments', protoName: 'Fragments')
-    ..aInt64(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Time', protoName: 'Time')
+    ..aOM<FileInfo>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'metadata', subBuilder: FileInfo.create)
+    ..pPS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Fragments', protoName: 'Fragments')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'creationTime', protoName: 'creationTime')
     ..hasRequiredFields = false
   ;
 
   GenericFile._() : super();
   factory GenericFile({
-    $core.String? owner,
-    $core.String? name,
+    FileInfo? metadata,
     $core.Iterable<$core.String>? fragments,
-    $fixnum.Int64? time,
+    $fixnum.Int64? creationTime,
   }) {
     final _result = create();
-    if (owner != null) {
-      _result.owner = owner;
-    }
-    if (name != null) {
-      _result.name = name;
+    if (metadata != null) {
+      _result.metadata = metadata;
     }
     if (fragments != null) {
       _result.fragments.addAll(fragments);
     }
-    if (time != null) {
-      _result.time = time;
+    if (creationTime != null) {
+      _result.creationTime = creationTime;
     }
     return _result;
   }
@@ -525,34 +520,27 @@ class GenericFile extends $pb.GeneratedMessage {
   static GenericFile? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get owner => $_getSZ(0);
+  FileInfo get metadata => $_getN(0);
   @$pb.TagNumber(1)
-  set owner($core.String v) { $_setString(0, v); }
+  set metadata(FileInfo v) { setField(1, v); }
   @$pb.TagNumber(1)
-  $core.bool hasOwner() => $_has(0);
+  $core.bool hasMetadata() => $_has(0);
   @$pb.TagNumber(1)
-  void clearOwner() => clearField(1);
+  void clearMetadata() => clearField(1);
+  @$pb.TagNumber(1)
+  FileInfo ensureMetadata() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $core.String get name => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set name($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasName() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearName() => clearField(2);
+  $core.List<$core.String> get fragments => $_getList(1);
 
   @$pb.TagNumber(3)
-  $core.List<$core.String> get fragments => $_getList(2);
-
-  @$pb.TagNumber(4)
-  $fixnum.Int64 get time => $_getI64(3);
-  @$pb.TagNumber(4)
-  set time($fixnum.Int64 v) { $_setInt64(3, v); }
-  @$pb.TagNumber(4)
-  $core.bool hasTime() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearTime() => clearField(4);
+  $fixnum.Int64 get creationTime => $_getI64(2);
+  @$pb.TagNumber(3)
+  set creationTime($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCreationTime() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCreationTime() => clearField(3);
 }
 
 class VerifyRequest extends $pb.GeneratedMessage {
@@ -819,21 +807,21 @@ class FileChunk extends $pb.GeneratedMessage {
 class FileInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FileInfo', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Name', protoName: 'Name')
-    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Type', protoName: 'Type')
+    ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Id', protoName: 'Id')
     ..hasRequiredFields = false
   ;
 
   FileInfo._() : super();
   factory FileInfo({
     $core.String? name,
-    $core.String? type,
+    $core.String? id,
   }) {
     final _result = create();
     if (name != null) {
       _result.name = name;
     }
-    if (type != null) {
-      _result.type = type;
+    if (id != null) {
+      _result.id = id;
     }
     return _result;
   }
@@ -868,12 +856,12 @@ class FileInfo extends $pb.GeneratedMessage {
   void clearName() => clearField(1);
 
   @$pb.TagNumber(2)
-  $core.String get type => $_getSZ(1);
+  $core.String get id => $_getSZ(1);
   @$pb.TagNumber(2)
-  set type($core.String v) { $_setString(1, v); }
+  set id($core.String v) { $_setString(1, v); }
   @$pb.TagNumber(2)
-  $core.bool hasType() => $_has(1);
+  $core.bool hasId() => $_has(1);
   @$pb.TagNumber(2)
-  void clearType() => clearField(2);
+  void clearId() => clearField(2);
 }
 

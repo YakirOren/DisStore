@@ -183,10 +183,19 @@ class galiClient extends $grpc.Client {
           ($0.UserInfoRequest value) => value.writeToBuffer(),
           ($core.List<$core.int> value) =>
               $0.UserInfoResponse.fromBuffer(value));
-  static final _$getFiles = $grpc.ClientMethod<$0.FileRequest, $0.GenericFile>(
-      '/gali.gali/GetFiles',
+  static final _$getAllFiles = $grpc.ClientMethod<$0.FileRequest, $0.FileInfo>(
+      '/gali.gali/GetAllFiles',
       ($0.FileRequest value) => value.writeToBuffer(),
+      ($core.List<$core.int> value) => $0.FileInfo.fromBuffer(value));
+  static final _$getFile = $grpc.ClientMethod<$0.FileInfo, $0.GenericFile>(
+      '/gali.gali/GetFile',
+      ($0.FileInfo value) => value.writeToBuffer(),
       ($core.List<$core.int> value) => $0.GenericFile.fromBuffer(value));
+  static final _$deleteFile =
+      $grpc.ClientMethod<$0.FileInfo, $0.StatusResponse>(
+          '/gali.gali/DeleteFile',
+          ($0.FileInfo value) => value.writeToBuffer(),
+          ($core.List<$core.int> value) => $0.StatusResponse.fromBuffer(value));
   static final _$upload = $grpc.ClientMethod<$0.FileChunk, $0.StatusResponse>(
       '/gali.gali/Upload',
       ($0.FileChunk value) => value.writeToBuffer(),
@@ -203,11 +212,21 @@ class galiClient extends $grpc.Client {
     return $createUnaryCall(_$getUserInfo, request, options: options);
   }
 
-  $grpc.ResponseStream<$0.GenericFile> getFiles($0.FileRequest request,
+  $grpc.ResponseStream<$0.FileInfo> getAllFiles($0.FileRequest request,
       {$grpc.CallOptions? options}) {
     return $createStreamingCall(
-        _$getFiles, $async.Stream.fromIterable([request]),
+        _$getAllFiles, $async.Stream.fromIterable([request]),
         options: options);
+  }
+
+  $grpc.ResponseFuture<$0.GenericFile> getFile($0.FileInfo request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$getFile, request, options: options);
+  }
+
+  $grpc.ResponseFuture<$0.StatusResponse> deleteFile($0.FileInfo request,
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$deleteFile, request, options: options);
   }
 
   $grpc.ResponseFuture<$0.StatusResponse> upload(
@@ -228,13 +247,27 @@ abstract class galiServiceBase extends $grpc.Service {
         false,
         ($core.List<$core.int> value) => $0.UserInfoRequest.fromBuffer(value),
         ($0.UserInfoResponse value) => value.writeToBuffer()));
-    $addMethod($grpc.ServiceMethod<$0.FileRequest, $0.GenericFile>(
-        'GetFiles',
-        getFiles_Pre,
+    $addMethod($grpc.ServiceMethod<$0.FileRequest, $0.FileInfo>(
+        'GetAllFiles',
+        getAllFiles_Pre,
         false,
         true,
         ($core.List<$core.int> value) => $0.FileRequest.fromBuffer(value),
+        ($0.FileInfo value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FileInfo, $0.GenericFile>(
+        'GetFile',
+        getFile_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FileInfo.fromBuffer(value),
         ($0.GenericFile value) => value.writeToBuffer()));
+    $addMethod($grpc.ServiceMethod<$0.FileInfo, $0.StatusResponse>(
+        'DeleteFile',
+        deleteFile_Pre,
+        false,
+        false,
+        ($core.List<$core.int> value) => $0.FileInfo.fromBuffer(value),
+        ($0.StatusResponse value) => value.writeToBuffer()));
     $addMethod($grpc.ServiceMethod<$0.FileChunk, $0.StatusResponse>(
         'Upload',
         upload,
@@ -249,15 +282,29 @@ abstract class galiServiceBase extends $grpc.Service {
     return getUserInfo(call, await request);
   }
 
-  $async.Stream<$0.GenericFile> getFiles_Pre(
+  $async.Stream<$0.FileInfo> getAllFiles_Pre(
       $grpc.ServiceCall call, $async.Future<$0.FileRequest> request) async* {
-    yield* getFiles(call, await request);
+    yield* getAllFiles(call, await request);
+  }
+
+  $async.Future<$0.GenericFile> getFile_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.FileInfo> request) async {
+    return getFile(call, await request);
+  }
+
+  $async.Future<$0.StatusResponse> deleteFile_Pre(
+      $grpc.ServiceCall call, $async.Future<$0.FileInfo> request) async {
+    return deleteFile(call, await request);
   }
 
   $async.Future<$0.UserInfoResponse> getUserInfo(
       $grpc.ServiceCall call, $0.UserInfoRequest request);
-  $async.Stream<$0.GenericFile> getFiles(
+  $async.Stream<$0.FileInfo> getAllFiles(
       $grpc.ServiceCall call, $0.FileRequest request);
+  $async.Future<$0.GenericFile> getFile(
+      $grpc.ServiceCall call, $0.FileInfo request);
+  $async.Future<$0.StatusResponse> deleteFile(
+      $grpc.ServiceCall call, $0.FileInfo request);
   $async.Future<$0.StatusResponse> upload(
       $grpc.ServiceCall call, $async.Stream<$0.FileChunk> request);
 }
