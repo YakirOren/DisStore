@@ -1,0 +1,131 @@
+syntax= "proto3";
+package gali;
+
+
+message RegisterRequest{
+    string FirstName = 1;
+    string LastName = 2;
+    string Mail = 3;
+    string Password = 4;
+    
+}
+
+// a common return message, when returned with no error 
+// it means the operation was successful. 
+message StatusResponse{
+}
+
+message RefreshTokenRequest{
+    string RefreshToken = 1;
+}
+
+
+message LoginRequest{
+    string Mail = 1;
+    string Password = 2;
+    string Identifier = 3;
+    string DeviceName = 4;
+}
+
+message LoginResponse{
+    string AccessToken = 1;
+
+    // expiration time of the access token.
+    int64 ExpiresOn = 2;
+    string RefreshToken = 3;
+
+}
+
+
+// user info 
+message UserInfoRequest{
+}
+message UserInfoResponse{
+    string FirstName = 1;
+    string LastName = 2;
+    string Mail = 4;
+}
+
+
+message FileRequest{
+
+}
+
+
+message GenericFile{
+
+    // info about the file
+    FileInfo metadata = 1;
+
+    // creation time of the file.
+    int64 creationTime = 3;
+
+    // an array of URLs from discord's cdn.
+    repeated string Fragments = 2;
+
+    
+}
+
+message VerifyRequest{
+    string Mail = 1;
+    string code = 2;
+}
+
+message CodeRequest{
+    string Mail = 1;
+}
+
+message ResetPasswordRequest{
+    string Mail = 1;
+    string Password = 2;
+    string Code = 3;
+}
+
+
+/*
+when a file is uploaded to the server we plan on spliting it into 
+smaller chunks 
+*/
+message FileChunk {
+
+    // only one of the fields in data will have info every time
+    // 1 or 2
+    // https://developers.google.com/protocol-buffers/docs/proto3#oneof
+    oneof data{
+        FileInfo metadata = 1;
+        bytes Content = 2;
+    }
+}
+
+// metadata about a file
+message FileInfo{
+    // name of the file
+    string Name = 1;
+    
+    // id of the file.
+    string Id = 2;
+}
+
+
+
+service gali_auth{
+    rpc Login (LoginRequest) returns (LoginResponse);
+    rpc RefreshToken (RefreshTokenRequest) returns (LoginResponse);
+    rpc Register(RegisterRequest) returns (StatusResponse);
+    rpc Verify(VerifyRequest) returns (StatusResponse);
+    rpc GetVerifyCode(CodeRequest) returns (StatusResponse);
+    rpc ResetPassword(ResetPasswordRequest) returns (StatusResponse);
+}
+
+service gali{
+
+    rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
+    rpc GetAllFiles(FileRequest) returns (stream FileInfo);
+    rpc GetFile(FileInfo) returns (GenericFile);
+    rpc DeleteFile(FileInfo) returns (StatusResponse);
+    rpc Upload(stream FileChunk) returns (StatusResponse) {}
+
+
+}
+
+
