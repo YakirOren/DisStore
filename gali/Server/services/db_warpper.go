@@ -33,7 +33,10 @@ type DBWrapper interface {
 	GetAllUsers() (a []*User, err error)
 
 	// Files
-	AddFile(t *File) error
+	AddFile(t *File) (primitive.ObjectID, error)
+
+	addURL(id string) error
+
 	RemoveFile(id string) error
 	GetFile(id string) (f *File, err error)
 	GetUserFiles(mail string) ([]*File, error)
@@ -135,11 +138,46 @@ func (store *MongoDBWrapper) AddUser(user *User) error {
 }
 
 // AddFile adds a new file to the file collection.
-func (store *MongoDBWrapper) AddFile(t *File) error {
+func (store *MongoDBWrapper) AddFile(t *File) (string, error) {
 
-	_, err := store.FilesCollection.InsertOne(
+	result, err := store.FilesCollection.InsertOne(
 		context.TODO(),
 		t.ToBson(),
+	)
+
+	if err != nil {
+		return "", status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	oid, ok := result.InsertedID.(primitive.ObjectID)
+	if ok {
+		return oid.Hex(), nil
+	}
+
+	// Not objectid.ObjectID, return error
+	return "", status.Errorf(codes.Internal, "something went wrong!")
+
+}
+
+func (store *MongoDBWrapper) addURL(id string, url string) error {
+
+	newID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	_, err = store.FilesCollection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{Key: "_id", Value: newID},
+		},
+		bson.D{
+			{Key: "$push",
+				Value: bson.D{
+					{Key: "Fragments", Value: url},
+				},
+			},
+		},
 	)
 
 	if err != nil {
