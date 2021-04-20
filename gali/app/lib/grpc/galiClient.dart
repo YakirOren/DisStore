@@ -236,7 +236,7 @@ class GaliClient {
     return directory.path;
   }
 
-  Future<GenericFile> getFile(String _fileName, String id) async {
+  Stream<double> getFile(String _fileName, String id) async* {
     final isPermissionStatusGranted = await _requestPermissions();
 
     if (isPermissionStatusGranted) {
@@ -265,7 +265,9 @@ class GaliClient {
           final r = await request.close();
           r.pipe(File('$path/${response.metadata.name}')
               .openWrite(mode: FileMode.append));
-          print((i / response.fragments.length * 100).toStringAsFixed(0) + "%");
+          
+          
+          yield ((i / response.fragments.length));
 
           // download all the files
           //
@@ -274,9 +276,8 @@ class GaliClient {
 
         }
       }
-      return response;
+
     } else {
-      return null;
       // handle the scenario when user declines the permissions
     }
   }
