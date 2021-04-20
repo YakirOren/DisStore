@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"io/ioutil"
+	"os"
+	"strconv"
 	"time"
 
 	pb "cloud/gali/Server/protos"
 
-	_ "github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	codes "google.golang.org/grpc/codes"
@@ -65,7 +67,7 @@ func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllF
 	// send the files to the user in a stream.
 	for _, file := range files {
 
-		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.String()[10 : len(file.ID.String())-2]}); err != nil {
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex()}); err != nil {
 			return status.Errorf(codes.Internal, "Something went wrong!")
 		}
 	}
@@ -137,6 +139,7 @@ func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileInfo) (*pb.
 }
 
 func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
+
 	req, err := stream.Recv()
 	if err != nil {
 		return status.Errorf(codes.Unknown, "upload failed")
@@ -145,20 +148,26 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	// getting the metadata of the file.
 	fileName := req.GetMetadata().Name
 
-	log.Println(fileName)
-	//getting the content of the file.
+	// get the claims from ctx.
+	claims, err := server.jwtManager.ExtractClaims(stream.Context())
+	if err != nil {
+		return err
+	}
+
+	fileCount := int(0)
+
+	// create a new file in the file collection.
+	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix()})
+	check(err)
 
 	fileData := bytes.Buffer{}
 
 	fileSize := int64(0)
 	for {
-		//log.Println(fileSize)
 		err := contextError(stream.Context())
 		if err != nil {
 			return err
 		}
-
-		//log.Print("waiting to receive more data")
 
 		req, err := stream.Recv()
 		if err == io.EOF {
@@ -176,27 +185,34 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 		// add the new data to the data we already have.
 		_, err = fileData.Write(chunk)
-
-		//TODO: dont load the entire file on the ram
-		// upload parts of the file when uploading
-
 		if err != nil {
 			return status.Errorf(codes.Internal, "file writing failed")
 		}
 
+		if fileSize >= maximumSize {
+
+			newFile := make([]byte, maximumSize)
+			fileData.Read(newFile) // read 8mb
+
+			log.Println("sending file " + strconv.Itoa(fileCount))
+
+			go server.SendToDiscord(newFile, id)
+			fileSize -= maximumSize
+
+			fileCount++
+
+		}
+
 	}
 
-	// get the claims from ctx.
-	claims, err := server.jwtManager.ExtractClaims(stream.Context())
-	if err != nil {
-		return err
-	}
+	fileSize -= int64(fileData.Len())
 
-	// upload the file to discord and get the file fragmets back as []string
-	frags := server.discordManager.UploadFile(fileData, fileSize)
-	// store the fragments in the database
-	// create a new file in the file collection.
-	server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: frags, Time: time.Now().Unix()})
+	// send the rest of the data...
+	newFile := make([]byte, fileData.Len())
+	fileData.Read(newFile) // read 8mb
+
+	log.Println("sending file " + strconv.Itoa(fileCount))
+	go server.SendToDiscord(newFile, id)
 
 	// tell the users that everything is OK.
 	err = stream.SendAndClose(&pb.StatusResponse{})
@@ -204,6 +220,31 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 		return status.Errorf(codes.Unknown, "stream fail")
 	}
 	return nil
+}
+
+// SendToDiscord
+func (server *GaliServer) SendToDiscord(fileData []byte, fileID string) {
+
+	fileName := "tmp"
+
+	f2, err := ioutil.TempFile("", fileName)
+	check(err)
+
+	defer os.Remove(f2.Name())
+
+	_, err = f2.Write(fileData)
+	check(err)
+
+	f2.Close()
+	check(err)
+
+	url := server.discordManager.UploadOneFile(fileData, f2.Name())
+
+	log.Println("adding url")
+	// add the new url to the file document
+	server.mongoDBWrapper.addURL(fileID, url)
+	check(err)
+
 }
 
 func contextError(ctx context.Context) error {
