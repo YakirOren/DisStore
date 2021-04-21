@@ -218,7 +218,6 @@ class GaliClient {
     return response;
   }
 
-  
   // request storage permissions
   Future<bool> _requestPermissions() async {
     var permission = await Permission.storage.isGranted;
@@ -241,42 +240,36 @@ class GaliClient {
 
     if (isPermissionStatusGranted) {
       final path = await _localPath;
+
+
+      if (File('$path/$_fileName').existsSync()){
+        int fileCount = 0;
+
+        while (File('$path/$fileCount$_fileName').existsSync()) {
+          fileCount++;
+        }
+        _fileName = fileCount.toString() + _fileName;
+      }
+
       final response =
           await _authenticatedClient.getFile(FileInfo(id: id, name: _fileName));
 
-      if (response.fragments.length == 1) {
-        print("getting one file");
-        final request =
-            await HttpClient().getUrl(Uri.parse(response.fragments[0]));
+      int i = 0;
+      for (var url in response.fragments) {
+        final request = await HttpClient().getUrl(Uri.parse(url));
 
         final r = await request.close();
-        r.pipe(File('$path/${response.metadata.name}').openWrite());
+        await r.pipe(File('$path/$_fileName').openWrite(mode: FileMode.append));
 
-        print('$path/${response.metadata.name}');
-      } else {
-        print(response.fragments.length);
+        yield ((i / response.fragments.length));
+        i++;
 
-        int i = 0;
-        for (var url in response.fragments) {
-          i++;
+        // download all the files
+        //
+        // combine them using bytes buffer
+        // save the file.
 
-          final request = await HttpClient().getUrl(Uri.parse(url));
-
-          final r = await request.close();
-          r.pipe(File('$path/${response.metadata.name}')
-              .openWrite(mode: FileMode.append));
-          
-          
-          yield ((i / response.fragments.length));
-
-          // download all the files
-          //
-          // combine them using bytes buffer
-          // save the file.
-
-        }
       }
-
     } else {
       // handle the scenario when user declines the permissions
     }
