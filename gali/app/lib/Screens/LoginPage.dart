@@ -13,6 +13,8 @@ import 'package:gali/globals.dart';
 import 'package:grpc/grpc_connection_interface.dart';
 import 'AppBase.dart';
 
+import 'package:gali/helpers.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -99,10 +101,7 @@ class _MyFormState extends State<MyForm> {
               }),
             );
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('[${e.codeName}] ${e.message}'),
-              backgroundColor: Colors.red,
-            ));
+            ScaffoldMessenger.of(context).showErrorBar(e);
           }
         }
       }
