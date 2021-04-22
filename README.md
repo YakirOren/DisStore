@@ -1,7 +1,7 @@
 
 <br/>
 <div align="center">
-<B>      ☁️📁GaliCloud</b>
+<B>      <img width="15%" src="https://cdn.discordapp.com/attachments/588014716144713739/834791740266250250/Discord-Logo-Color2.png" alt="DisStore logo"></b>
 </div>
 
 <br/>
