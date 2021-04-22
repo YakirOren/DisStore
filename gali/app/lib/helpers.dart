@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:grpc/grpc_web.dart';
 
 // This file has helper functions to manage the app better
 
@@ -30,4 +31,25 @@ extension Colory on Color {
     });
     return MaterialColor(this.value, swatch);
   }
+}
+
+extension Errors on ScaffoldMessengerState {
+
+  // showErrorBar displays the grpc error to the user.
+  dynamic showErrorBar(GrpcError e) {
+    this.showSnackBar(SnackBar(
+      content: Text('[${e.codeName}] ${e.message}'),
+      backgroundColor: Colors.red,
+    ));
+  }
+
+
+  // showErrorBar displays the grpc error to the user.
+  dynamic showOkBar(String content) {
+    this.showSnackBar(SnackBar(
+      content: Text(content),
+      backgroundColor: Colors.green,
+    ));
+  }
+
 }

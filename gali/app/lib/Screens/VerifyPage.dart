@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:gali/Screens/LoginPage.dart';
 import 'package:gali/UI_Elements/AppButton.dart';
-import 'package:flare_flutter/flare_actor.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:gali/globals.dart';
 import 'AppBase.dart';
+
+import 'package:gali/helpers.dart';
 
 class VerifyPage extends StatefulWidget {
   final String email;
@@ -40,10 +40,7 @@ class _VerifyPageState extends State<VerifyPage> {
         }),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('[${e.codeName}] ${e.message}'),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showErrorBar(e);
     }
   }
 
@@ -59,42 +56,21 @@ class _VerifyPageState extends State<VerifyPage> {
         }),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('[${e.codeName}] ${e.message}'),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showErrorBar(e);
     }
   }
 
   void resendCode() async {
     try {
       await Globals.client.resendCode(widget.email);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('A new verification code was sent!'),
-        backgroundColor: Colors.green,
-      ));
+      ScaffoldMessenger.of(context).showOkBar('A new verification code was sent!');
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('[${e.codeName}] ${e.message}'),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showErrorBar(e);
     }
   }
 
   @override
   void initState() {
-    // onTapRecognizer = TapGestureRecognizer()
-    //   ..onTap = () {
-    //     try {
-    //       print("resend");
-    //       Globals.client.resendCode(widget.email);
-    //     } catch (e) {
-    //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //         content: Text('[${e.codeName}] ${e.message}'),
-    //         backgroundColor: Colors.red,
-    //       ));
-    //     }
-    //   };
     errorController = StreamController<ErrorAnimationType>();
     super.initState();
   }
