@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -157,7 +158,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	fileCount := int(0)
 
 	// create a new file in the file collection.
-	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix()})
+	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix(), FileSize: 0.0})
 	check(err)
 
 	fileData := bytes.Buffer{}
@@ -205,7 +206,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	}
 
-	fileSize -= int64(fileData.Len())
+	//fileSize -= int64(fileData.Len())
 
 	// send the rest of the data...
 	newFile := make([]byte, fileData.Len())
@@ -213,6 +214,15 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	log.Println("sending file " + strconv.Itoa(fileCount))
 	go server.SendToDiscord(newFile, id)
+
+	fileSize += int64(fileCount * maximumSize)
+
+	size := float64(float64(fileSize) / math.Pow10(9)) // convert bytes to gb
+	err = server.mongoDBWrapper.IncUsedStorage(claims.Email, size)
+	check(err)
+
+	err = server.mongoDBWrapper.IncFileSize(id, size)
+	check(err)
 
 	// tell the users that everything is OK.
 	err = stream.SendAndClose(&pb.StatusResponse{})

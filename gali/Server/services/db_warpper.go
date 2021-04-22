@@ -31,10 +31,11 @@ type DBWrapper interface {
 	AddUser(user *User) error
 	GetUserByEmail(mail string) (*User, error)
 	GetAllUsers() (a []*User, err error)
+	IncUsedStorage(mail string, value float64) error
 
 	// Files
 	AddFile(t *File) (primitive.ObjectID, error)
-
+	IncFileSize(id string, value float64) error
 	addURL(id string) error
 
 	RemoveFile(id string) error
@@ -265,31 +266,36 @@ func (store *MongoDBWrapper) GetAllUsers() (a []*User, err error) {
 
 //SetVerficationCode sets a new code in the field.
 func (store *MongoDBWrapper) SetVerficationCode(mail string, code string) error {
-	return store.ChangeFieldValue(mail, "VerficationCode", code)
+	return store.UpdateFieldValue(mail, "VerficationCode", "$set", code)
 }
 
 //ResetLastCodeRequest sets the value to current time.
 func (store *MongoDBWrapper) ResetLastCodeRequest(mail string) error {
-	return store.ChangeFieldValue(mail, "LastCodeRequest", time.Now().Unix())
+	return store.UpdateFieldValue(mail, "LastCodeRequest", "$set", time.Now().Unix())
 }
 
 //SetRefreshToken makes changes to a field name.
 func (store *MongoDBWrapper) SetRefreshToken(mail string, refreshToken string) error {
-	return store.ChangeFieldValue(mail, "RefreshToken", refreshToken)
+	return store.UpdateFieldValue(mail, "RefreshToken", "$set", refreshToken)
 }
 
-//SetBalance sets the balance field.
-func (store *MongoDBWrapper) SetBalance(mail string, balance int) error {
-	return store.ChangeFieldValue(mail, "Balance", balance)
+//IncUsedStorage increments the data in the UsedStorageSpace field.
+func (store *MongoDBWrapper) IncUsedStorage(mail string, value float64) error {
+	return store.UpdateFieldValue(mail, "UsedStorageSpace", "$inc", value)
+}
+
+//IncUsedStorage increments the data in the UsedStorageSpace field.
+func (store *MongoDBWrapper) IncFileSize(id string, value float64) error {
+	return store.UpdateFileField(id, "FileSize", "$set", value)
 }
 
 //ActivateUser sets the balance field.
 func (store *MongoDBWrapper) ActivateUser(mail string) error {
-	return store.ChangeFieldValue(mail, "Activated", true)
+	return store.UpdateFieldValue(mail, "Activated", "$set", true)
 }
 
-//ChangeFieldValue sets a new value in the given field name
-func (store *MongoDBWrapper) ChangeFieldValue(mail string, fieldName string, value interface{}) error {
+//UpdateFieldValue sets a new value in the given field name
+func (store *MongoDBWrapper) UpdateFieldValue(mail string, fieldName string, updateOperator string, value interface{}) error {
 
 	_, err := store.UsersCollection.UpdateOne(
 		context.TODO(),
@@ -297,7 +303,37 @@ func (store *MongoDBWrapper) ChangeFieldValue(mail string, fieldName string, val
 			{Key: "Email", Value: strings.ToLower(mail)},
 		},
 		bson.D{
-			{Key: "$set",
+			{Key: updateOperator,
+				Value: bson.D{
+					{Key: fieldName, Value: value},
+				},
+			},
+		},
+	)
+
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	return nil
+}
+
+//UpdateFileField sets a new value in the given field name
+func (store *MongoDBWrapper) UpdateFileField(id string, fieldName string, updateOperator string, value interface{}) error {
+
+	// make objectID from string
+	a, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return status.Errorf(codes.Internal, "Something went wrong!")
+	}
+
+	_, err = store.FilesCollection.UpdateOne(
+		context.TODO(),
+		bson.D{
+			{Key: "_id", Value: a},
+		},
+		bson.D{
+			{Key: updateOperator,
 				Value: bson.D{
 					{Key: fieldName, Value: value},
 				},
@@ -388,9 +424,7 @@ func (store *MongoDBWrapper) AddIdentifier(mail, identifier string) error {
 		}
 	}
 
-	user.Identifiers = append(user.Identifiers, identifier)
-
-	err = store.ChangeFieldValue(mail, "Identifiers", user.Identifiers)
+	err = store.UpdateFieldValue(mail, "Identifiers", "$push", identifier)
 	if err != nil {
 		return err
 	}
@@ -414,7 +448,7 @@ func (store *MongoDBWrapper) ChangePassword(mail, newPassword string) error {
 	}
 
 	// set the new password
-	err = store.ChangeFieldValue(mail, "Password", hashedPassword)
+	err = store.UpdateFieldValue(mail, "Password", "$set", hashedPassword)
 	if err != nil {
 		return err
 	}
