@@ -31,7 +31,7 @@ func NewGaliServer(mongoDBWrapper MongoDBWrapper, jwtManager *JWTManager, discor
 }
 
 // GetUserInfo returns the blances of the user.
-func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoRequest) (*pb.UserInfoResponse, error) {
+func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.Empty) (*pb.UserInfoResponse, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -47,7 +47,7 @@ func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoReques
 	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email}, nil
 }
 
-func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllFilesServer) error {
+func (server *GaliServer) GetAllFiles(in *pb.Empty, stream pb.Gali_GetAllFilesServer) error {
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(stream.Context())
 	if err != nil {
@@ -76,7 +76,7 @@ func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllF
 	return nil
 }
 
-func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileInfo) (*pb.GenericFile, error) {
+func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileRequest) (*pb.GenericFile, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -99,13 +99,13 @@ func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileInfo) (*pb.Gen
 
 	// check if user owns the requested file.
 	if file.Owner == user.Email {
-		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String()}, Fragments: file.Fragments, CreationTime: file.Time}, nil
+		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String(), CreationTime: file.Time, FileSize: float32(file.FileSize)}, Fragments: file.Fragments}, nil
 	}
 	return nil, status.Errorf(codes.PermissionDenied, "you dont have the permissions to this resource")
 
 }
 
-func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileInfo) (*pb.StatusResponse, error) {
+func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileRequest) (*pb.StatusResponse, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -147,7 +147,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	}
 
 	// getting the metadata of the file.
-	fileName := req.GetMetadata().Name
+	fileName := req.GetFileName()
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(stream.Context())

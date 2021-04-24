@@ -166,7 +166,7 @@ class GaliClient {
   }
 
   Future<UserInfoResponse> getUserInfo() async {
-    final response = await _authenticatedClient.getUserInfo(UserInfoRequest());
+    final response = await _authenticatedClient.getUserInfo(Empty());
 
     // caching the user info
     _firstName = response.firstName;
@@ -187,8 +187,7 @@ class GaliClient {
   // fragFile returns a stream of file chunks of the given file.
   Stream<FileChunk> fragFile(PlatformFile file) async* {
     // sending the first Chunk with the metadata
-    yield FileChunk(
-        metadata: FileInfo(name: file.name)); // maybe remove the type ?
+    yield FileChunk(fileName: file.name); // maybe remove the type ?
 
     // opening the file as stream
     var reader = ChunkedStreamIterator(File(file.path).openRead());
@@ -213,7 +212,7 @@ class GaliClient {
   }
 
   Stream<FileInfo> getAllFiles() {
-    final response = _authenticatedClient.getAllFiles(FileRequest());
+    final response = _authenticatedClient.getAllFiles(Empty());
 
     return response;
   }
@@ -241,8 +240,7 @@ class GaliClient {
     if (isPermissionStatusGranted) {
       final path = await _localPath;
 
-
-      if (File('$path/$_fileName').existsSync()){
+      if (File('$path/$_fileName').existsSync()) {
         int fileCount = 0;
 
         while (File('$path/$fileCount$_fileName').existsSync()) {
@@ -251,8 +249,10 @@ class GaliClient {
         _fileName = fileCount.toString() + _fileName;
       }
 
-      final response =
-          await _authenticatedClient.getFile(FileInfo(id: id, name: _fileName));
+      final response = await _authenticatedClient.getFile(FileRequest(id: id));
+
+      print("got file ${response.metadata.fileSize} gb");
+      print("got file ${response.metadata.fileSize * 1000} mb");
 
       int i = 0;
       for (var url in response.fragments) {
@@ -277,7 +277,7 @@ class GaliClient {
 
   Future<StatusResponse> deleteFile(String name, String id) async {
     final response =
-        _authenticatedClient.deleteFile(FileInfo(id: id, name: name));
+        _authenticatedClient.deleteFile(FileRequest(id: id));
 
     return response;
   }

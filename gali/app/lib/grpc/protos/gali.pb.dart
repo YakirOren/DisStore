@@ -339,35 +339,6 @@ class LoginResponse extends $pb.GeneratedMessage {
   void clearRefreshToken() => clearField(3);
 }
 
-class UserInfoRequest extends $pb.GeneratedMessage {
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserInfoRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
-    ..hasRequiredFields = false
-  ;
-
-  UserInfoRequest._() : super();
-  factory UserInfoRequest() => create();
-  factory UserInfoRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
-  factory UserInfoRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
-  'Will be removed in next major version')
-  UserInfoRequest clone() => UserInfoRequest()..mergeFromMessage(this);
-  @$core.Deprecated(
-  'Using this can add significant overhead to your binary. '
-  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
-  'Will be removed in next major version')
-  UserInfoRequest copyWith(void Function(UserInfoRequest) updates) => super.copyWith((message) => updates(message as UserInfoRequest)) as UserInfoRequest; // ignore: deprecated_member_use
-  $pb.BuilderInfo get info_ => _i;
-  @$core.pragma('dart2js:noInline')
-  static UserInfoRequest create() => UserInfoRequest._();
-  UserInfoRequest createEmptyInstance() => create();
-  static $pb.PbList<UserInfoRequest> createRepeated() => $pb.PbList<UserInfoRequest>();
-  @$core.pragma('dart2js:noInline')
-  static UserInfoRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserInfoRequest>(create);
-  static UserInfoRequest? _defaultInstance;
-}
-
 class UserInfoResponse extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'UserInfoResponse', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'FirstName', protoName: 'FirstName')
@@ -445,11 +416,20 @@ class UserInfoResponse extends $pb.GeneratedMessage {
 
 class FileRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FileRequest', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Id', protoName: 'Id')
     ..hasRequiredFields = false
   ;
 
   FileRequest._() : super();
-  factory FileRequest() => create();
+  factory FileRequest({
+    $core.String? id,
+  }) {
+    final _result = create();
+    if (id != null) {
+      _result.id = id;
+    }
+    return _result;
+  }
   factory FileRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
   factory FileRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
   @$core.Deprecated(
@@ -470,13 +450,21 @@ class FileRequest extends $pb.GeneratedMessage {
   @$core.pragma('dart2js:noInline')
   static FileRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FileRequest>(create);
   static FileRequest? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => clearField(1);
 }
 
 class GenericFile extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'GenericFile', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
     ..aOM<FileInfo>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'metadata', subBuilder: FileInfo.create)
-    ..pPS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Fragments', protoName: 'Fragments')
-    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'creationTime', protoName: 'creationTime')
+    ..pPS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fragments')
     ..hasRequiredFields = false
   ;
 
@@ -484,7 +472,6 @@ class GenericFile extends $pb.GeneratedMessage {
   factory GenericFile({
     FileInfo? metadata,
     $core.Iterable<$core.String>? fragments,
-    $fixnum.Int64? creationTime,
   }) {
     final _result = create();
     if (metadata != null) {
@@ -492,9 +479,6 @@ class GenericFile extends $pb.GeneratedMessage {
     }
     if (fragments != null) {
       _result.fragments.addAll(fragments);
-    }
-    if (creationTime != null) {
-      _result.creationTime = creationTime;
     }
     return _result;
   }
@@ -532,15 +516,6 @@ class GenericFile extends $pb.GeneratedMessage {
 
   @$pb.TagNumber(2)
   $core.List<$core.String> get fragments => $_getList(1);
-
-  @$pb.TagNumber(3)
-  $fixnum.Int64 get creationTime => $_getI64(2);
-  @$pb.TagNumber(3)
-  set creationTime($fixnum.Int64 v) { $_setInt64(2, v); }
-  @$pb.TagNumber(3)
-  $core.bool hasCreationTime() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearCreationTime() => clearField(3);
 }
 
 class VerifyRequest extends $pb.GeneratedMessage {
@@ -727,32 +702,32 @@ class ResetPasswordRequest extends $pb.GeneratedMessage {
 }
 
 enum FileChunk_Data {
-  metadata, 
+  fileName, 
   content, 
   notSet
 }
 
 class FileChunk extends $pb.GeneratedMessage {
   static const $core.Map<$core.int, FileChunk_Data> _FileChunk_DataByTag = {
-    1 : FileChunk_Data.metadata,
+    1 : FileChunk_Data.fileName,
     2 : FileChunk_Data.content,
     0 : FileChunk_Data.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FileChunk', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
     ..oo(0, [1, 2])
-    ..aOM<FileInfo>(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'metadata', subBuilder: FileInfo.create)
+    ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fileName', protoName: 'fileName')
     ..a<$core.List<$core.int>>(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Content', $pb.PbFieldType.OY, protoName: 'Content')
     ..hasRequiredFields = false
   ;
 
   FileChunk._() : super();
   factory FileChunk({
-    FileInfo? metadata,
+    $core.String? fileName,
     $core.List<$core.int>? content,
   }) {
     final _result = create();
-    if (metadata != null) {
-      _result.metadata = metadata;
+    if (fileName != null) {
+      _result.fileName = fileName;
     }
     if (content != null) {
       _result.content = content;
@@ -784,15 +759,13 @@ class FileChunk extends $pb.GeneratedMessage {
   void clearData() => clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  FileInfo get metadata => $_getN(0);
+  $core.String get fileName => $_getSZ(0);
   @$pb.TagNumber(1)
-  set metadata(FileInfo v) { setField(1, v); }
+  set fileName($core.String v) { $_setString(0, v); }
   @$pb.TagNumber(1)
-  $core.bool hasMetadata() => $_has(0);
+  $core.bool hasFileName() => $_has(0);
   @$pb.TagNumber(1)
-  void clearMetadata() => clearField(1);
-  @$pb.TagNumber(1)
-  FileInfo ensureMetadata() => $_ensure(0);
+  void clearFileName() => clearField(1);
 
   @$pb.TagNumber(2)
   $core.List<$core.int> get content => $_getN(1);
@@ -808,6 +781,8 @@ class FileInfo extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'FileInfo', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Name', protoName: 'Name')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Id', protoName: 'Id')
+    ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'creationTime', protoName: 'creationTime')
+    ..a<$core.double>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fileSize', $pb.PbFieldType.OF, protoName: 'fileSize')
     ..hasRequiredFields = false
   ;
 
@@ -815,6 +790,8 @@ class FileInfo extends $pb.GeneratedMessage {
   factory FileInfo({
     $core.String? name,
     $core.String? id,
+    $fixnum.Int64? creationTime,
+    $core.double? fileSize,
   }) {
     final _result = create();
     if (name != null) {
@@ -822,6 +799,12 @@ class FileInfo extends $pb.GeneratedMessage {
     }
     if (id != null) {
       _result.id = id;
+    }
+    if (creationTime != null) {
+      _result.creationTime = creationTime;
+    }
+    if (fileSize != null) {
+      _result.fileSize = fileSize;
     }
     return _result;
   }
@@ -863,5 +846,52 @@ class FileInfo extends $pb.GeneratedMessage {
   $core.bool hasId() => $_has(1);
   @$pb.TagNumber(2)
   void clearId() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get creationTime => $_getI64(2);
+  @$pb.TagNumber(3)
+  set creationTime($fixnum.Int64 v) { $_setInt64(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasCreationTime() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearCreationTime() => clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.double get fileSize => $_getN(3);
+  @$pb.TagNumber(4)
+  set fileSize($core.double v) { $_setFloat(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasFileSize() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearFileSize() => clearField(4);
+}
+
+class Empty extends $pb.GeneratedMessage {
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'Empty', package: const $pb.PackageName(const $core.bool.fromEnvironment('protobuf.omit_message_names') ? '' : 'gali'), createEmptyInstance: create)
+    ..hasRequiredFields = false
+  ;
+
+  Empty._() : super();
+  factory Empty() => create();
+  factory Empty.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Empty.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Empty clone() => Empty()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Empty copyWith(void Function(Empty) updates) => super.copyWith((message) => updates(message as Empty)) as Empty; // ignore: deprecated_member_use
+  $pb.BuilderInfo get info_ => _i;
+  @$core.pragma('dart2js:noInline')
+  static Empty create() => Empty._();
+  Empty createEmptyInstance() => create();
+  static $pb.PbList<Empty> createRepeated() => $pb.PbList<Empty>();
+  @$core.pragma('dart2js:noInline')
+  static Empty getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Empty>(create);
+  static Empty? _defaultInstance;
 }
 

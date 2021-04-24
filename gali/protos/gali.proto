@@ -37,9 +37,7 @@ message LoginResponse{
 }
 
 
-// user info 
-message UserInfoRequest{
-}
+
 message UserInfoResponse{
     string FirstName = 1;
     string LastName = 2;
@@ -48,7 +46,8 @@ message UserInfoResponse{
 
 
 message FileRequest{
-
+    // id of the file.
+    string Id = 1;
 }
 
 
@@ -57,13 +56,8 @@ message GenericFile{
     // info about the file
     FileInfo metadata = 1;
 
-    // creation time of the file.
-    int64 creationTime = 3;
-
     // an array of URLs from discord's cdn.
-    repeated string Fragments = 2;
-
-    
+    repeated string fragments = 2;
 }
 
 message VerifyRequest{
@@ -92,7 +86,10 @@ message FileChunk {
     // 1 or 2
     // https://developers.google.com/protocol-buffers/docs/proto3#oneof
     oneof data{
-        FileInfo metadata = 1;
+        
+        string fileName = 1;
+
+
         bytes Content = 2;
     }
 }
@@ -104,7 +101,18 @@ message FileInfo{
     
     // id of the file.
     string Id = 2;
+
+    // creation time of the file.
+    int64 creationTime = 3;
+
+    // the size of the file in GB.
+    float fileSize = 4;
 }
+
+message Empty{
+
+}
+
 
 
 
@@ -119,10 +127,10 @@ service gali_auth{
 
 service gali{
 
-    rpc GetUserInfo(UserInfoRequest) returns (UserInfoResponse);
-    rpc GetAllFiles(FileRequest) returns (stream FileInfo);
-    rpc GetFile(FileInfo) returns (GenericFile);
-    rpc DeleteFile(FileInfo) returns (StatusResponse);
+    rpc GetUserInfo(Empty) returns (UserInfoResponse);
+    rpc GetAllFiles(Empty) returns (stream FileInfo);
+    rpc GetFile(FileRequest) returns (GenericFile);
+    rpc DeleteFile(FileRequest) returns (StatusResponse);
     rpc Upload(stream FileChunk) returns (StatusResponse) {}
 
 

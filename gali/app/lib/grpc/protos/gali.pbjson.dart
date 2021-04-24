@@ -63,13 +63,6 @@ const LoginResponse$json = const {
 
 /// Descriptor for `LoginResponse`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List loginResponseDescriptor = $convert.base64Decode('Cg1Mb2dpblJlc3BvbnNlEiAKC0FjY2Vzc1Rva2VuGAEgASgJUgtBY2Nlc3NUb2tlbhIcCglFeHBpcmVzT24YAiABKANSCUV4cGlyZXNPbhIiCgxSZWZyZXNoVG9rZW4YAyABKAlSDFJlZnJlc2hUb2tlbg==');
-@$core.Deprecated('Use userInfoRequestDescriptor instead')
-const UserInfoRequest$json = const {
-  '1': 'UserInfoRequest',
-};
-
-/// Descriptor for `UserInfoRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userInfoRequestDescriptor = $convert.base64Decode('Cg9Vc2VySW5mb1JlcXVlc3Q=');
 @$core.Deprecated('Use userInfoResponseDescriptor instead')
 const UserInfoResponse$json = const {
   '1': 'UserInfoResponse',
@@ -85,22 +78,24 @@ final $typed_data.Uint8List userInfoResponseDescriptor = $convert.base64Decode('
 @$core.Deprecated('Use fileRequestDescriptor instead')
 const FileRequest$json = const {
   '1': 'FileRequest',
+  '2': const [
+    const {'1': 'Id', '3': 1, '4': 1, '5': 9, '10': 'Id'},
+  ],
 };
 
 /// Descriptor for `FileRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileRequestDescriptor = $convert.base64Decode('CgtGaWxlUmVxdWVzdA==');
+final $typed_data.Uint8List fileRequestDescriptor = $convert.base64Decode('CgtGaWxlUmVxdWVzdBIOCgJJZBgBIAEoCVICSWQ=');
 @$core.Deprecated('Use genericFileDescriptor instead')
 const GenericFile$json = const {
   '1': 'GenericFile',
   '2': const [
     const {'1': 'metadata', '3': 1, '4': 1, '5': 11, '6': '.gali.FileInfo', '10': 'metadata'},
-    const {'1': 'creationTime', '3': 3, '4': 1, '5': 3, '10': 'creationTime'},
-    const {'1': 'Fragments', '3': 2, '4': 3, '5': 9, '10': 'Fragments'},
+    const {'1': 'fragments', '3': 2, '4': 3, '5': 9, '10': 'fragments'},
   ],
 };
 
 /// Descriptor for `GenericFile`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List genericFileDescriptor = $convert.base64Decode('CgtHZW5lcmljRmlsZRIqCghtZXRhZGF0YRgBIAEoCzIOLmdhbGkuRmlsZUluZm9SCG1ldGFkYXRhEiIKDGNyZWF0aW9uVGltZRgDIAEoA1IMY3JlYXRpb25UaW1lEhwKCUZyYWdtZW50cxgCIAMoCVIJRnJhZ21lbnRz');
+final $typed_data.Uint8List genericFileDescriptor = $convert.base64Decode('CgtHZW5lcmljRmlsZRIqCghtZXRhZGF0YRgBIAEoCzIOLmdhbGkuRmlsZUluZm9SCG1ldGFkYXRhEhwKCWZyYWdtZW50cxgCIAMoCVIJZnJhZ21lbnRz');
 @$core.Deprecated('Use verifyRequestDescriptor instead')
 const VerifyRequest$json = const {
   '1': 'VerifyRequest',
@@ -138,7 +133,7 @@ final $typed_data.Uint8List resetPasswordRequestDescriptor = $convert.base64Deco
 const FileChunk$json = const {
   '1': 'FileChunk',
   '2': const [
-    const {'1': 'metadata', '3': 1, '4': 1, '5': 11, '6': '.gali.FileInfo', '9': 0, '10': 'metadata'},
+    const {'1': 'fileName', '3': 1, '4': 1, '5': 9, '9': 0, '10': 'fileName'},
     const {'1': 'Content', '3': 2, '4': 1, '5': 12, '9': 0, '10': 'Content'},
   ],
   '8': const [
@@ -147,15 +142,24 @@ const FileChunk$json = const {
 };
 
 /// Descriptor for `FileChunk`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileChunkDescriptor = $convert.base64Decode('CglGaWxlQ2h1bmsSLAoIbWV0YWRhdGEYASABKAsyDi5nYWxpLkZpbGVJbmZvSABSCG1ldGFkYXRhEhoKB0NvbnRlbnQYAiABKAxIAFIHQ29udGVudEIGCgRkYXRh');
+final $typed_data.Uint8List fileChunkDescriptor = $convert.base64Decode('CglGaWxlQ2h1bmsSHAoIZmlsZU5hbWUYASABKAlIAFIIZmlsZU5hbWUSGgoHQ29udGVudBgCIAEoDEgAUgdDb250ZW50QgYKBGRhdGE=');
 @$core.Deprecated('Use fileInfoDescriptor instead')
 const FileInfo$json = const {
   '1': 'FileInfo',
   '2': const [
     const {'1': 'Name', '3': 1, '4': 1, '5': 9, '10': 'Name'},
     const {'1': 'Id', '3': 2, '4': 1, '5': 9, '10': 'Id'},
+    const {'1': 'creationTime', '3': 3, '4': 1, '5': 3, '10': 'creationTime'},
+    const {'1': 'fileSize', '3': 4, '4': 1, '5': 2, '10': 'fileSize'},
   ],
 };
 
 /// Descriptor for `FileInfo`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileInfoDescriptor = $convert.base64Decode('CghGaWxlSW5mbxISCgROYW1lGAEgASgJUgROYW1lEg4KAklkGAIgASgJUgJJZA==');
+final $typed_data.Uint8List fileInfoDescriptor = $convert.base64Decode('CghGaWxlSW5mbxISCgROYW1lGAEgASgJUgROYW1lEg4KAklkGAIgASgJUgJJZBIiCgxjcmVhdGlvblRpbWUYAyABKANSDGNyZWF0aW9uVGltZRIaCghmaWxlU2l6ZRgEIAEoAlIIZmlsZVNpemU=');
+@$core.Deprecated('Use emptyDescriptor instead')
+const Empty$json = const {
+  '1': 'Empty',
+};
+
+/// Descriptor for `Empty`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List emptyDescriptor = $convert.base64Decode('CgVFbXB0eQ==');
