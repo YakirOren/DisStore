@@ -5,6 +5,7 @@ import (
 	"context"
 	"io"
 	"io/ioutil"
+	"math"
 	"os"
 	"strconv"
 	"time"
@@ -30,7 +31,7 @@ func NewGaliServer(mongoDBWrapper MongoDBWrapper, jwtManager *JWTManager, discor
 }
 
 // GetUserInfo returns the blances of the user.
-func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoRequest) (*pb.UserInfoResponse, error) {
+func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.Empty) (*pb.UserInfoResponse, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -43,10 +44,10 @@ func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.UserInfoReques
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email}, nil
+	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email, UsedStorage: user.UsedStorageSpace}, nil
 }
 
-func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllFilesServer) error {
+func (server *GaliServer) GetAllFiles(in *pb.Empty, stream pb.Gali_GetAllFilesServer) error {
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(stream.Context())
 	if err != nil {
@@ -66,8 +67,7 @@ func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllF
 
 	// send the files to the user in a stream.
 	for _, file := range files {
-
-		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex()}); err != nil {
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex(), CreationTime: file.Time, FileSize: float32(file.FileSize)}); err != nil {
 			return status.Errorf(codes.Internal, "Something went wrong!")
 		}
 	}
@@ -75,7 +75,7 @@ func (server *GaliServer) GetAllFiles(in *pb.FileRequest, stream pb.Gali_GetAllF
 	return nil
 }
 
-func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileInfo) (*pb.GenericFile, error) {
+func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileRequest) (*pb.GenericFile, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -93,18 +93,15 @@ func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileInfo) (*pb.Gen
 		return nil, err
 	}
 
-	log.Printf(file.Owner)
-	log.Printf(user.Email)
-
 	// check if user owns the requested file.
 	if file.Owner == user.Email {
-		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String()}, Fragments: file.Fragments, CreationTime: file.Time}, nil
+		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String(), CreationTime: file.Time, FileSize: float32(file.FileSize)}, Fragments: file.Fragments}, nil
 	}
 	return nil, status.Errorf(codes.PermissionDenied, "you dont have the permissions to this resource")
 
 }
 
-func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileInfo) (*pb.StatusResponse, error) {
+func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileRequest) (*pb.StatusResponse, error) {
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(ctx)
@@ -146,7 +143,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	}
 
 	// getting the metadata of the file.
-	fileName := req.GetMetadata().Name
+	fileName := req.GetFileName()
 
 	// get the claims from ctx.
 	claims, err := server.jwtManager.ExtractClaims(stream.Context())
@@ -157,7 +154,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	fileCount := int(0)
 
 	// create a new file in the file collection.
-	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix()})
+	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix(), FileSize: 0.0})
 	check(err)
 
 	fileData := bytes.Buffer{}
@@ -171,7 +168,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 		req, err := stream.Recv()
 		if err == io.EOF {
-			log.Print("no more data")
+			// no more data
 			break
 		}
 		if err != nil {
@@ -205,7 +202,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	}
 
-	fileSize -= int64(fileData.Len())
+	//fileSize -= int64(fileData.Len())
 
 	// send the rest of the data...
 	newFile := make([]byte, fileData.Len())
@@ -213,6 +210,15 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	log.Println("sending file " + strconv.Itoa(fileCount))
 	go server.SendToDiscord(newFile, id)
+
+	fileSize += int64(fileCount * maximumSize)
+
+	size := float64(float64(fileSize) / math.Pow10(9)) // convert bytes to gb
+	err = server.mongoDBWrapper.IncUsedStorage(claims.Email, size)
+	check(err)
+
+	err = server.mongoDBWrapper.IncFileSize(id, size)
+	check(err)
 
 	// tell the users that everything is OK.
 	err = stream.SendAndClose(&pb.StatusResponse{})

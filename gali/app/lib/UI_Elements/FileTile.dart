@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gali/Screens/FileInfoPage.dart';
 import 'package:gali/globals.dart';
 import 'package:gali/grpc/protos/gali.pb.dart';
 
@@ -26,10 +27,14 @@ class _FileTileState extends State<FileTile> {
       leading: Icon(Icons.folder, color: Theme.of(context).highlightColor),
 
       trailing: PopupMenuButton<FileMenu>(
+          color: Theme.of(context).backgroundColor,
           icon: Icon(Icons.more_horiz, color: Theme.of(context).highlightColor),
           onSelected: (FileMenu result) async {
             switch (result) {
               case FileMenu.info:
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => FileInfoPage(info: widget.info)));
+
                 break;
 
               case FileMenu.copy:
@@ -40,7 +45,6 @@ class _FileTileState extends State<FileTile> {
                     .getFile(widget.info.name, widget.info.id)
                     .listen((val) {
                   setState(() {
-                    print(val);
                     loadingProgress = val;
                   });
                 }).onDone(() {
@@ -94,11 +98,9 @@ class _FileTileState extends State<FileTile> {
 
       title: loadingProgress > 0
           ? LinearProgressIndicator(
-            
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            backgroundColor: Colors.grey,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+              backgroundColor: Colors.grey,
               value: loadingProgress,
-
             )
           : Text(
               widget.info.name,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
+import 'package:intl/intl.dart';
+
 
 // This file has helper functions to manage the app better
 
@@ -52,4 +54,38 @@ extension Errors on ScaffoldMessengerState {
     ));
   }
 
+}
+
+
+
+String readTimestamp(int timestamp) {
+  var now = DateTime.now();
+  var format = DateFormat('HH:mm a');
+  var date = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  var diff = now.difference(date);
+  var time = '';
+
+  if (diff.inSeconds <= 0 ||
+      diff.inSeconds > 0 && diff.inMinutes == 0 ||
+      diff.inMinutes > 0 && diff.inHours == 0 ||
+      diff.inHours > 0 && diff.inDays == 0) {
+    time = format.format(date);
+  } else if (diff.inDays > 0 && diff.inDays < 7) {
+    time = diff.inDays.toString() +
+        ((diff.inDays == 1) ? ' DAY AGO' : ' DAYS AGO');
+  } else {
+    time = (diff.inDays / 7).floor().toString() +
+        (((diff.inDays / 7).floor() == 1) ? ' WEEK AGO' : ' WEEKS AGO');
+  }
+
+  time += '\n' + DateFormat.yMMMd().format(date);
+
+  return time;
+}
+
+String formatFileSize(double size) {
+  if (size < 1) {
+    return (size * 1000).toStringAsFixed(2) + "MB";
+  }
+  return size.toStringAsFixed(2) + "GB";
 }
