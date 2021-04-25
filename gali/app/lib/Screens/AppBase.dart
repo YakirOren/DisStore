@@ -101,7 +101,7 @@ class _AppBaseState extends State<AppBase> {
                 ListTile(
                   leading: Icon(Icons.offline_pin_outlined, color: color[800]),
                   title: Text('Offline'),
-                  onTap: () {},
+                  onTap: () {}, 
                 ),
                 ListTile(
                   leading: Icon(Icons.delete_outline, color: color[800]),
@@ -134,13 +134,13 @@ class _AppBaseState extends State<AppBase> {
                       children: [
                         Spacer(),
                         LinearProgressIndicator(
-                          value: 0.67,
+                          value: Globals.client.getUsedStorage / 10,
                           backgroundColor: color[300],
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.blue),
                         ),
                         Spacer(),
-                        Text("6.7 GB of 10 GB used",
+                        Text("${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
                             style: Theme.of(context).textTheme.subtitle1),
                       ],
                     ),

@@ -35,7 +35,6 @@ class _MyAppState extends State<MyApp> {
     Globals.client.loginWithRefresh().then((value) {
       setState(() {
         shouldMoveUser = value;
-        print(shouldMoveUser);
       });
       SecureStorage.readSecureData('ThemeIndex')
           .then((index) => Globals.updateThemeMode(int.parse(index), context))
@@ -96,6 +95,11 @@ class _MyAppState extends State<MyApp> {
                 fontSize: 14,
                 letterSpacing: 0.25,
                 color: Colors.white),
+            subtitle2: GoogleFonts.roboto(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+                letterSpacing: 0.25,
+                color: Colors.white),
           ),
           //backgroundColor: const Color(0xff2c4260),
           backgroundColor: Color(0xff121212),
@@ -119,7 +123,7 @@ class _MyAppState extends State<MyApp> {
                   fontSize: 22,
                   letterSpacing: -1.5),
               headline2: GoogleFonts.roboto(
-                color: Colors.black,
+                  color: Colors.black,
                   fontWeight: FontWeight.w300,
                   fontSize: 22,
                   letterSpacing: -0.5),
@@ -133,6 +137,10 @@ class _MyAppState extends State<MyApp> {
                   letterSpacing: 0.25),
               subtitle1: GoogleFonts.roboto(
                   fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  letterSpacing: 0.25),
+              subtitle2: GoogleFonts.roboto(
+                  fontWeight: FontWeight.bold,
                   fontSize: 14,
                   letterSpacing: 0.25),
             ),
