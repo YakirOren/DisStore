@@ -44,7 +44,7 @@ func (server *GaliServer) GetUserInfo(ctx context.Context, in *pb.Empty) (*pb.Us
 		return nil, status.Errorf(codes.Internal, "")
 	}
 
-	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email}, nil
+	return &pb.UserInfoResponse{FirstName: user.FirstName, LastName: user.LastName, Mail: user.Email, UsedStorage: user.UsedStorageSpace}, nil
 }
 
 func (server *GaliServer) GetAllFiles(in *pb.Empty, stream pb.Gali_GetAllFilesServer) error {
@@ -67,8 +67,7 @@ func (server *GaliServer) GetAllFiles(in *pb.Empty, stream pb.Gali_GetAllFilesSe
 
 	// send the files to the user in a stream.
 	for _, file := range files {
-
-		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex()}); err != nil {
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex(), CreationTime: file.Time, FileSize: float32(file.FileSize)}); err != nil {
 			return status.Errorf(codes.Internal, "Something went wrong!")
 		}
 	}
@@ -93,9 +92,6 @@ func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileRequest) (*pb.
 	if err != nil {
 		return nil, err
 	}
-
-	log.Printf(file.Owner)
-	log.Printf(user.Email)
 
 	// check if user owns the requested file.
 	if file.Owner == user.Email {
@@ -172,7 +168,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 		req, err := stream.Recv()
 		if err == io.EOF {
-			log.Print("no more data")
+			// no more data
 			break
 		}
 		if err != nil {

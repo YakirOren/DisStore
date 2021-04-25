@@ -70,11 +70,12 @@ const UserInfoResponse$json = const {
     const {'1': 'FirstName', '3': 1, '4': 1, '5': 9, '10': 'FirstName'},
     const {'1': 'LastName', '3': 2, '4': 1, '5': 9, '10': 'LastName'},
     const {'1': 'Mail', '3': 4, '4': 1, '5': 9, '10': 'Mail'},
+    const {'1': 'usedStorage', '3': 5, '4': 1, '5': 1, '10': 'usedStorage'},
   ],
 };
 
 /// Descriptor for `UserInfoResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userInfoResponseDescriptor = $convert.base64Decode('ChBVc2VySW5mb1Jlc3BvbnNlEhwKCUZpcnN0TmFtZRgBIAEoCVIJRmlyc3ROYW1lEhoKCExhc3ROYW1lGAIgASgJUghMYXN0TmFtZRISCgRNYWlsGAQgASgJUgRNYWls');
+final $typed_data.Uint8List userInfoResponseDescriptor = $convert.base64Decode('ChBVc2VySW5mb1Jlc3BvbnNlEhwKCUZpcnN0TmFtZRgBIAEoCVIJRmlyc3ROYW1lEhoKCExhc3ROYW1lGAIgASgJUghMYXN0TmFtZRISCgRNYWlsGAQgASgJUgRNYWlsEiAKC3VzZWRTdG9yYWdlGAUgASgBUgt1c2VkU3RvcmFnZQ==');
 @$core.Deprecated('Use fileRequestDescriptor instead')
 const FileRequest$json = const {
   '1': 'FileRequest',

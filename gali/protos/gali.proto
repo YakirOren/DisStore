@@ -42,6 +42,7 @@ message UserInfoResponse{
     string FirstName = 1;
     string LastName = 2;
     string Mail = 4;
+    double usedStorage = 5;
 }
 
 

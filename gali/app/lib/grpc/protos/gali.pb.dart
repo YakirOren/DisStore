@@ -344,6 +344,7 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     ..aOS(1, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'FirstName', protoName: 'FirstName')
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'LastName', protoName: 'LastName')
     ..aOS(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Mail', protoName: 'Mail')
+    ..a<$core.double>(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'usedStorage', $pb.PbFieldType.OD, protoName: 'usedStorage')
     ..hasRequiredFields = false
   ;
 
@@ -352,6 +353,7 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     $core.String? firstName,
     $core.String? lastName,
     $core.String? mail,
+    $core.double? usedStorage,
   }) {
     final _result = create();
     if (firstName != null) {
@@ -362,6 +364,9 @@ class UserInfoResponse extends $pb.GeneratedMessage {
     }
     if (mail != null) {
       _result.mail = mail;
+    }
+    if (usedStorage != null) {
+      _result.usedStorage = usedStorage;
     }
     return _result;
   }
@@ -412,6 +417,15 @@ class UserInfoResponse extends $pb.GeneratedMessage {
   $core.bool hasMail() => $_has(2);
   @$pb.TagNumber(4)
   void clearMail() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.double get usedStorage => $_getN(3);
+  @$pb.TagNumber(5)
+  set usedStorage($core.double v) { $_setDouble(3, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasUsedStorage() => $_has(3);
+  @$pb.TagNumber(5)
+  void clearUsedStorage() => clearField(5);
 }
 
 class FileRequest extends $pb.GeneratedMessage {

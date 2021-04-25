@@ -12,8 +12,6 @@ import 'protos/gali.pb.dart';
 import 'protos/gali.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
 import 'package:gali/secure_storage.dart';
-
-//import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class GaliClient {
@@ -28,37 +26,24 @@ class GaliClient {
   galiClient _authenticatedClient;
 
   bool
-      _cachedBalance; // this is true when the client class has cached the user's balance
-  String _balance;
-
-  bool
       _cachedInfo; // this is true when the client class has cached the user info from the server
   String _firstName;
   String _lastName;
-
-  List<UserInfoResponse> _topUsers;
-  List<String> _profileImages;
+  double _storage;
 
   String _mail;
-  int _imageID;
 
-  // ctor
   GaliClient(this.channel) {
     _cachedInfo = false;
     _unauthenticatedClient = gali_authClient(channel);
   }
 
-  bool get cachedBalance => _cachedBalance;
-  String get getCachedBalance => _balance;
-
   bool get cachedInfo => _cachedInfo;
   String get getCachedFirstName => _firstName;
   String get getCachedLastName => _lastName;
-
-  List<String> get getCachedProfileImages => _profileImages;
-  List<UserInfoResponse> get getTopUsers => _topUsers;
   String get getCachedMail => _mail;
-  int get getCachedImageID => _imageID;
+  double get getUsedStorage => _storage;
+
 
   Future<LoginResponse> login(String mail, String password) async {
     LoginResponse response;
@@ -172,6 +157,7 @@ class GaliClient {
     _firstName = response.firstName;
     _lastName = response.lastName;
     _mail = response.mail;
+    _storage = response.usedStorage;
 
     return response;
   }
@@ -251,9 +237,6 @@ class GaliClient {
 
       final response = await _authenticatedClient.getFile(FileRequest(id: id));
 
-      print("got file ${response.metadata.fileSize} gb");
-      print("got file ${response.metadata.fileSize * 1000} mb");
-
       int i = 0;
       for (var url in response.fragments) {
         final request = await HttpClient().getUrl(Uri.parse(url));
@@ -276,8 +259,7 @@ class GaliClient {
   }
 
   Future<StatusResponse> deleteFile(String name, String id) async {
-    final response =
-        _authenticatedClient.deleteFile(FileRequest(id: id));
+    final response = _authenticatedClient.deleteFile(FileRequest(id: id));
 
     return response;
   }
