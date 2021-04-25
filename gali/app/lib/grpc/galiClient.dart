@@ -12,8 +12,6 @@ import 'protos/gali.pb.dart';
 import 'protos/gali.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
 import 'package:gali/secure_storage.dart';
-
-//import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class GaliClient {
@@ -28,37 +26,24 @@ class GaliClient {
   galiClient _authenticatedClient;
 
   bool
-      _cachedBalance; // this is true when the client class has cached the user's balance
-  String _balance;
-
-  bool
       _cachedInfo; // this is true when the client class has cached the user info from the server
   String _firstName;
   String _lastName;
-
-  List<UserInfoResponse> _topUsers;
-  List<String> _profileImages;
+  double _storage;
 
   String _mail;
-  int _imageID;
 
-  // ctor
   GaliClient(this.channel) {
     _cachedInfo = false;
     _unauthenticatedClient = gali_authClient(channel);
   }
 
-  bool get cachedBalance => _cachedBalance;
-  String get getCachedBalance => _balance;
-
   bool get cachedInfo => _cachedInfo;
   String get getCachedFirstName => _firstName;
   String get getCachedLastName => _lastName;
-
-  List<String> get getCachedProfileImages => _profileImages;
-  List<UserInfoResponse> get getTopUsers => _topUsers;
   String get getCachedMail => _mail;
-  int get getCachedImageID => _imageID;
+  double get getUsedStorage => _storage;
+
 
   Future<LoginResponse> login(String mail, String password) async {
     LoginResponse response;
@@ -166,12 +151,13 @@ class GaliClient {
   }
 
   Future<UserInfoResponse> getUserInfo() async {
-    final response = await _authenticatedClient.getUserInfo(UserInfoRequest());
+    final response = await _authenticatedClient.getUserInfo(Empty());
 
     // caching the user info
     _firstName = response.firstName;
     _lastName = response.lastName;
     _mail = response.mail;
+    _storage = response.usedStorage;
 
     return response;
   }
@@ -187,8 +173,7 @@ class GaliClient {
   // fragFile returns a stream of file chunks of the given file.
   Stream<FileChunk> fragFile(PlatformFile file) async* {
     // sending the first Chunk with the metadata
-    yield FileChunk(
-        metadata: FileInfo(name: file.name)); // maybe remove the type ?
+    yield FileChunk(fileName: file.name); // maybe remove the type ?
 
     // opening the file as stream
     var reader = ChunkedStreamIterator(File(file.path).openRead());
@@ -213,12 +198,11 @@ class GaliClient {
   }
 
   Stream<FileInfo> getAllFiles() {
-    final response = _authenticatedClient.getAllFiles(FileRequest());
+    final response = _authenticatedClient.getAllFiles(Empty());
 
     return response;
   }
 
-  
   // request storage permissions
   Future<bool> _requestPermissions() async {
     var permission = await Permission.storage.isGranted;
@@ -236,54 +220,46 @@ class GaliClient {
     return directory.path;
   }
 
-  Future<GenericFile> getFile(String _fileName, String id) async {
+  Stream<double> getFile(String _fileName, String id) async* {
     final isPermissionStatusGranted = await _requestPermissions();
 
     if (isPermissionStatusGranted) {
       final path = await _localPath;
-      final response =
-          await _authenticatedClient.getFile(FileInfo(id: id, name: _fileName));
 
-      if (response.fragments.length == 1) {
-        print("getting one file");
-        final request =
-            await HttpClient().getUrl(Uri.parse(response.fragments[0]));
+      if (File('$path/$_fileName').existsSync()) {
+        int fileCount = 0;
+
+        while (File('$path/$fileCount$_fileName').existsSync()) {
+          fileCount++;
+        }
+        _fileName = fileCount.toString() + _fileName;
+      }
+
+      final response = await _authenticatedClient.getFile(FileRequest(id: id));
+
+      int i = 0;
+      for (var url in response.fragments) {
+        final request = await HttpClient().getUrl(Uri.parse(url));
 
         final r = await request.close();
-        r.pipe(File('$path/${response.metadata.name}').openWrite());
+        await r.pipe(File('$path/$_fileName').openWrite(mode: FileMode.append));
 
-        print('$path/${response.metadata.name}');
-      } else {
-        print(response.fragments.length);
+        yield ((i / response.fragments.length));
+        i++;
 
-        int i = 0;
-        for (var url in response.fragments) {
-          i++;
+        // download all the files
+        //
+        // combine them using bytes buffer
+        // save the file.
 
-          final request = await HttpClient().getUrl(Uri.parse(url));
-
-          final r = await request.close();
-          r.pipe(File('$path/${response.metadata.name}')
-              .openWrite(mode: FileMode.append));
-          print((i / response.fragments.length * 100).toStringAsFixed(0) + "%");
-
-          // download all the files
-          //
-          // combine them using bytes buffer
-          // save the file.
-
-        }
       }
-      return response;
     } else {
-      return null;
       // handle the scenario when user declines the permissions
     }
   }
 
   Future<StatusResponse> deleteFile(String name, String id) async {
-    final response =
-        _authenticatedClient.deleteFile(FileInfo(id: id, name: name));
+    final response = _authenticatedClient.deleteFile(FileRequest(id: id));
 
     return response;
   }

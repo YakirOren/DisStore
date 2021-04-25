@@ -5,11 +5,10 @@ import 'package:gali/UI_Elements/FullLogo.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gali/globals.dart';
 import 'package:grpc/grpc.dart';
 
-import 'AppBase.dart';
+import 'package:gali/helpers.dart';
 import 'VerifyPage.dart';
 
 class ResetPasswordPage extends StatefulWidget {
@@ -93,10 +92,7 @@ class _MyFormState extends State<MyForm> {
               }),
             );
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('[${e.codeName}] ${e.message}'),
-              backgroundColor: Colors.red,
-            ));
+            ScaffoldMessenger.of(context).showErrorBar(e);
           }
         }
       }

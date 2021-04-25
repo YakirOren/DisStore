@@ -82,52 +82,6 @@ class _AppBaseState extends State<AppBase> {
       return Scaffold(
         primary: true,
         floatingActionButton: ActionsButton(),
-
-        // floatingActionButton: FabCircularMenu(
-        //     fabOpenIcon: Icon(
-        //       Icons.add,
-        //     ),
-
-        //     //animationDuration: const Duration(milliseconds: 800),
-        //     //animationCurve: Curves.fastLinearToSlowEaseIn,
-
-        //     fabColor: Theme.of(context).backgroundColor,
-        //     ringColor: Colors.white.withAlpha(25),
-        //     ringDiameter: 350.0,
-        //     ringWidth: 150.0,
-        //     fabSize: 64.0,
-        //     fabElevation: 8.0,
-        //     children: <Widget>[
-        //       IconButton(
-        //           icon: Icon(Icons.image),
-        //           onPressed: () async {
-        //             FilePickerResult result = await FilePicker.platform
-        //                 .pickFiles(type: FileType.media);
-
-        //             if (result != null) {
-        //               Globals.client.upload(result.files.single);
-        //               //File file = File(result.files.single.path);
-        //             } else {
-        //               // User canceled the picker
-        //             }
-
-        //           }),
-        //       IconButton(
-        //           icon: Icon(Icons.file_upload),
-        //           onPressed: () async {
-        //             FilePickerResult result = await FilePicker.platform
-        //                 .pickFiles(type: FileType.any);
-
-        //             if (result != null) {
-        //               Globals.client.upload(result.files.single);
-
-        //             } else {
-        //               // User canceled the picker
-        //             }
-        //           })
-        //     ]),
-
-        //drawerScrimColor: Theme.of(context).backgroundColor,
         backgroundColor: Theme.of(context).backgroundColor,
         drawer: Drawer(
           child: Container(
@@ -147,7 +101,7 @@ class _AppBaseState extends State<AppBase> {
                 ListTile(
                   leading: Icon(Icons.offline_pin_outlined, color: color[800]),
                   title: Text('Offline'),
-                  onTap: () {},
+                  onTap: () {}, 
                 ),
                 ListTile(
                   leading: Icon(Icons.delete_outline, color: color[800]),
@@ -180,13 +134,13 @@ class _AppBaseState extends State<AppBase> {
                       children: [
                         Spacer(),
                         LinearProgressIndicator(
-                          value: 0.67,
+                          value: Globals.client.getUsedStorage / 10,
                           backgroundColor: color[300],
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.blue),
                         ),
                         Spacer(),
-                        Text("6.7 GB of 10 GB used",
+                        Text("${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
                             style: Theme.of(context).textTheme.subtitle1),
                       ],
                     ),
@@ -243,7 +197,6 @@ class ActionsButton extends StatelessWidget {
         ),
       ),
       onPressed: () async {
-        //Scaffold.of(context).showBottomSheet((context) => null);
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
@@ -272,11 +225,6 @@ class ActionsButton extends StatelessWidget {
                       spacing: 32.0, // gap between adjacent chips
                       runSpacing: 4.0, // gap between lines
                       children: <Widget>[
-                        //const Text('Modal BottomSheet'),
-                        //
-                        //
-                        //
-
                         CircleAvatar(
                           child: CircleAvatar(
                             radius: 29.5,
@@ -341,10 +289,6 @@ class ActionsButton extends StatelessWidget {
                           radius: 30,
                         ),
 
-                        // ElevatedButton(
-                        //   child: const Text('Close BottomSheet'),
-                        //   onPressed: () => Navigator.pop(context),
-                        // )
                       ],
                     ),
                     Spacer(
