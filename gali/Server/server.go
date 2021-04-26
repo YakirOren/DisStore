@@ -52,8 +52,11 @@ func main() {
 		log.Fatal("❌\n", err)
 	}
 
-	discordManager := services.NewDiscordManager(config.FileChannel, config.DiscordToken)
-	defer discordManager.Client.Gateway().StayConnectedUntilInterrupted()
+	discordManager := services.NewDiscordManager(config.FileChannels, config.DiscordTokens)
+
+	for _, client := range discordManager.Clients {
+		defer client.Gateway().StayConnectedUntilInterrupted()
+	}
 
 	authServer := services.NewAuthServer(*mongoDBWrapper, jwtManager, emailManager)
 	logic := services.NewGaliServer(*mongoDBWrapper, jwtManager, discordManager)

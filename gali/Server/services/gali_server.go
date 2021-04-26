@@ -193,7 +193,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 			log.Println("sending file " + strconv.Itoa(fileCount))
 
-			go server.SendToDiscord(newFile, id)
+			go server.SendToDiscord(newFile, id, fileCount)
 			fileSize -= maximumSize
 
 			fileCount++
@@ -209,7 +209,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	fileData.Read(newFile) // read 8mb
 
 	log.Println("sending file " + strconv.Itoa(fileCount))
-	go server.SendToDiscord(newFile, id)
+	go server.SendToDiscord(newFile, id, fileCount)
 
 	fileSize += int64(fileCount * maximumSize)
 
@@ -229,7 +229,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 }
 
 // SendToDiscord
-func (server *GaliServer) SendToDiscord(fileData []byte, fileID string) {
+func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCount int) {
 
 	fileName := "tmp"
 
@@ -244,7 +244,7 @@ func (server *GaliServer) SendToDiscord(fileData []byte, fileID string) {
 	f2.Close()
 	check(err)
 
-	url := server.discordManager.UploadOneFile(fileData, f2.Name())
+	url := server.discordManager.UploadOneFile(fileData, f2.Name(), fileCount)
 
 	log.Println("adding url")
 	// add the new url to the file document
