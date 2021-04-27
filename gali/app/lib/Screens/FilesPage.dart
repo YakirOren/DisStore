@@ -8,7 +8,6 @@ import 'package:gali/grpc/protos/gali.pb.dart';
 
 import 'package:gali/grpc/protos/gali.pbgrpc.dart';
 
-import 'package:google_fonts/google_fonts.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class FilesPage extends StatefulWidget {
@@ -69,14 +68,6 @@ class _FilesPageState extends State<FilesPage> {
   load(StreamController<FileInfo> sc) async {
     // put files into the stream controler.
     Globals.client.getAllFiles().pipe(sc);
-  }
-
-  Widget _makeElement(int index) {
-    if (index >= Globals.files.length) {
-      return null;
-    }
-
-    return Globals.files[index];
   }
 
   @override
