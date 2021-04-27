@@ -1,3 +1,4 @@
+import 'package:gali/UI_Elements/FileTile.dart';
 import 'package:gali/grpc/protos/gali.pbgrpc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gali/grpc/galiClient.dart';
@@ -11,7 +12,7 @@ class Globals {
   
   static var themeMode = StateProvider((ref) => ThemeMode.system);
 
-  static List<FileInfo> files = [];
+  static List<FileTile> files = [];
 
   static var client = GaliClient(GaliChannel(
     ClientChannel(

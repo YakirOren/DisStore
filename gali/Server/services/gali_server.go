@@ -119,12 +119,14 @@ func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileRequest) (*
 		return nil, err
 	}
 
-	log.Printf(file.Owner)
-	log.Printf(user.Email)
-
 	// check if user owns the requested file.
 	if file.Owner == user.Email {
 		err = server.mongoDBWrapper.RemoveFile(in.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		err = server.mongoDBWrapper.IncUsedStorage(user.Email, -file.FileSize)
 		if err != nil {
 			return nil, err
 		}
