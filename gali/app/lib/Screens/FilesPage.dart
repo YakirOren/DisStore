@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gali/UI_Elements/FileTile.dart';
@@ -46,12 +47,6 @@ class _FilesPageState extends State<FilesPage> {
     }
   }
 
-  void _onLoading() async {
-    print("loading");
-
-    _refreshController.loadComplete();
-  }
-
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -73,42 +68,13 @@ class _FilesPageState extends State<FilesPage> {
   @override
   Widget build(BuildContext context) {
     return SmartRefresher(
-      enablePullDown: true,
-      header: ClassicHeader(
-        refreshStyle: RefreshStyle.UnFollow,
-        iconPos: IconPosition.top,
-        refreshingText: "",
-        refreshingIcon: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
-        ),
-      ),
-      footer: CustomFooter(
-        builder: (BuildContext context, LoadStatus mode) {
-          Widget body;
-          if (mode == LoadStatus.idle) {
-            body = Text("pull up load");
-          } else if (mode == LoadStatus.loading) {
-            body = CupertinoActivityIndicator();
-          } else if (mode == LoadStatus.failed) {
-            body = Text("Load Failed!Click retry!");
-          } else if (mode == LoadStatus.canLoading) {
-            body = Text("release to load more");
-          } else {
-            body = Text("No more Data");
-          }
-          return Container(
-            height: 55.0,
-            child: Center(child: body),
-          );
-        },
+      header: MaterialClassicHeader(
+        color: Colors.blue,
       ),
       controller: _refreshController,
       onRefresh: _onRefresh,
-      onLoading: _onLoading,
-
-
       child: ListView(
-        itemExtent: 100,
+        itemExtent: 80,
         children: Globals.files,
       ),
     );
