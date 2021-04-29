@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'dart:async';
 
 import 'package:gali/globals.dart';
@@ -11,11 +11,15 @@ import 'package:gali/Screens/FilesPage.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
+
 import 'package:gali/helpers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gali/UI_Elements/confirm.dart';
+import 'package:gali/secure_storage.dart';
+import 'LoginPage.dart';
 
 //AppBase is the base of the application,
 //it has a navigation bar and
@@ -44,8 +48,8 @@ class _AppBaseState extends State<AppBase> {
   Widget build(BuildContext context) {
     // _widgetOptions holds the pages
     final List<Widget> _widgetOptions = <Widget>[
-      HomePage(),
       FilesPage(),
+      HomePage(),
     ];
     void _onItemTapped(int index) {
       context.read(Globals.selectedIndex).state = index;
@@ -59,14 +63,14 @@ class _AppBaseState extends State<AppBase> {
 
       final navItems = [
         BottomNavigationBarItem(
-          icon: Icon(index == 0 ? Icons.home : Icons.home_outlined),
-          label: "Home",
-          backgroundColor: Theme.of(context).bottomAppBarColor,
-        ),
-        BottomNavigationBarItem(
-            icon: Icon(index == 1 ? Icons.folder : Icons.folder_outlined),
+            icon: Icon(index == 0 ? Icons.folder : Icons.folder_outlined),
             label: "Files",
             backgroundColor: Theme.of(context).bottomAppBarColor),
+        BottomNavigationBarItem(
+          icon: Icon(index == 1 ? Icons.search : Icons.search_outlined),
+          label: "Search",
+          backgroundColor: Theme.of(context).bottomAppBarColor,
+        ),
       ];
 
       return Scaffold(
@@ -77,29 +81,56 @@ class _AppBaseState extends State<AppBase> {
           child: Container(
             color: Theme.of(context).backgroundColor,
             child: ListView(
-              itemExtent: 60,
-              padding: EdgeInsets.zero,
+              //itemExtent: 60,
               children: <Widget>[
-                DrawerHeader(
-                  child: LimitedBox(
-                      child: Placeholder()),
-                ),
-                ListTile(
-                  horizontalTitleGap: 0,
-                  leading: Icon(Icons.access_time, color: color[800]),
-                  title: Text(
-                    'Recent',
+                // DrawerHeader(
+
+                //   padding: EdgeInsets.symmetric(vertical: 1),
+                //   child: SvgPicture.asset(
+                //     'assets/icon/Distore2.svg',
+                //     fit: BoxFit.contain,
+                //   ),
+
+                // ),
+                //
+                UserAccountsDrawerHeader(
+
+                  otherAccountsPictures: [
+                    IconButton(
+                      icon: Icon(Icons.logout, color: Colors.white),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => ConfirmDialog(
+                              danger: true,
+                              title: 'Log out?',
+                              content:
+                                  Text("Are you sure you want to log out?"),
+                              cancelFunction: () {
+                                Navigator.of(context).pop();
+                                return false;
+                              },
+                              actionText: Text('logout'),
+                              actionFunction: () async {
+                                logout(context);
+                              }),
+                        );
+                      },
+                    ),                  
+                  ],
+                  accountEmail: Text(Globals.client.getCachedMail),
+
+                  accountName: Text(
+                      "${Globals.client.getCachedFirstName.capitalize()} ${Globals.client.getCachedLastName.capitalize()}"),
+                  
+                  currentAccountPicture: CircleAvatar(
+                    backgroundImage: AssetImage("assets/images/avatar.png"),
                   ),
                 ),
                 ListTile(
                   leading: Icon(Icons.offline_pin_outlined, color: color[800]),
                   title: Text('Offline'),
                   onTap: () {},
-                  horizontalTitleGap: 0,
-                ),
-                ListTile(
-                  leading: Icon(Icons.delete_outline, color: color[800]),
-                  title: Text('Trash'),
                   horizontalTitleGap: 0,
                 ),
                 ListTile(
@@ -151,20 +182,15 @@ class _AppBaseState extends State<AppBase> {
             ),
           ),
         ),
-
         appBar: AppBar(
           iconTheme: IconThemeData(color: color),
-          centerTitle: false,
+          centerTitle: true,
           elevation: 1,
           backgroundColor: Theme.of(context).bottomAppBarColor,
         ),
         body: Center(
           child: _widgetOptions.elementAt(index),
         ),
-
-        //
-        //child: Container(color: Colors.red,),
-
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           showUnselectedLabels: false,
@@ -178,6 +204,16 @@ class _AppBaseState extends State<AppBase> {
       );
     });
   }
+}
+
+void logout(BuildContext context) {
+  SecureStorage.deleteSecureData('refreshToken');
+  Globals.files = [];
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context) {
+      return LoginPage();
+    }),
+  );
 }
 
 class ActionsButton extends StatelessWidget {
@@ -211,7 +247,7 @@ class ActionsButton extends StatelessWidget {
                     Text(
                       "Create new",
                       style: GoogleFonts.roboto(
-                        color: Colors.black,
+                        color: Theme.of(context).highlightColor,
                         fontWeight: FontWeight.w300,
                         fontSize: 20,
                         letterSpacing: -0.5,

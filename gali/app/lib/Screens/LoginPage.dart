@@ -3,16 +3,15 @@ import 'package:gali/Screens/ResetPasswordPage.dart';
 import 'package:gali/Screens/VerifyPage.dart';
 import 'package:gali/UI_Elements/AppButton.dart';
 import 'package:gali/UI_Elements/AppInputField.dart';
-import 'package:gali/UI_Elements/FullLogo.dart';
-import 'package:gali/grpc/protos/gali.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:gali/UI_Elements/FullLogo.dart';
 
 import 'package:gali/globals.dart';
 import 'package:grpc/grpc_connection_interface.dart';
 import 'AppBase.dart';
-
+import 'package:flutter_svg/svg.dart';
 import 'package:gali/helpers.dart';
 
 class LoginPage extends StatefulWidget {
