@@ -33,14 +33,13 @@ class _FilesPageState extends State<FilesPage> {
     // setup the controller
     streamController.stream.listen((msg) {
       // this funciton runs everytime a msg enters the stream.
-      setState(() {
-        Globals.files.insert(0, FileTile(info: msg));
-      });
+
+      Globals.files.insert(0, FileTile(info: msg));
+      setState(() {});
     });
 
     try {
       load(streamController); // enter data to the stream.
-
       _refreshController.refreshCompleted();
     } catch (e) {
       _refreshController.refreshFailed();

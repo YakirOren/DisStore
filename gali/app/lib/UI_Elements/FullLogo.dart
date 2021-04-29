@@ -1,4 +1,3 @@
-import 'package:gali/globals.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -13,18 +12,11 @@ class FullLogo extends StatefulWidget {
 }
 
 class _FullLogoState extends State<FullLogo> {
-
   @override
   Widget build(BuildContext context) {
-    bool darkModeOn = Globals.isDarkMode(context);
-
     return Container(
       height: 200,
-      child: SvgPicture.asset(
-        darkModeOn
-            ? 'assets/icon/galiLogoNoBackgroundWhite.svg'
-            : 'assets/icon/galiLogoNoBackgroundBlack.svg',
-      ),
+      child: SvgPicture.asset('assets/icon/Distore2.svg'),
     );
   }
 }
