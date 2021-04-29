@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:gali/globals.dart';
 import 'package:grpc/grpc.dart';
 import 'package:grpc/service_api.dart' as $grpc;
 import 'package:chunked_stream/chunked_stream.dart';
@@ -172,12 +173,14 @@ class GaliClient {
 
   // fragFile returns a stream of file chunks of the given file.
   Stream<FileChunk> fragFile(PlatformFile file) async* {
+    
     // sending the first Chunk with the metadata
-    yield FileChunk(fileName: file.name); // maybe remove the type ?
+    yield FileChunk(fileName: file.name);
 
     // opening the file as stream
     var reader = ChunkedStreamIterator(File(file.path).openRead());
 
+    // send the file as chunks.
     while (true) {
       var data = await reader.read(512); // reading 512 bytes from the stream
 
@@ -258,8 +261,12 @@ class GaliClient {
     }
   }
 
-  Future<StatusResponse> deleteFile(String name, String id) async {
+  Future<StatusResponse> deleteFile(String id) async {
     final response = _authenticatedClient.deleteFile(FileRequest(id: id));
+
+    Globals.files.removeWhere((element) => element.info.id == id);
+
+    
 
     return response;
   }

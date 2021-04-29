@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:gali/UI_Elements/FileTile.dart';
@@ -8,7 +9,7 @@ import 'package:gali/grpc/protos/gali.pb.dart';
 
 import 'package:gali/grpc/protos/gali.pbgrpc.dart';
 
-import 'package:google_fonts/google_fonts.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class FilesPage extends StatefulWidget {
   FilesPage({
@@ -19,10 +20,32 @@ class FilesPage extends StatefulWidget {
   _FilesPageState createState() => _FilesPageState();
 }
 
-class _FilesPageState extends State<FilesPage>
-    with SingleTickerProviderStateMixin {
+class _FilesPageState extends State<FilesPage> {
   StreamController<FileInfo> streamController;
-  List<FileInfo> files = [];
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: (Globals.files.length == 0));
+
+  void _onRefresh() async {
+    await Future.delayed(Duration(milliseconds: 1500));
+    Globals.files = [];
+    streamController = StreamController.broadcast();
+
+    // setup the controller
+    streamController.stream.listen((msg) {
+      // this funciton runs everytime a msg enters the stream.
+      setState(() {
+        Globals.files.insert(0, FileTile(info: msg));
+      });
+    });
+
+    try {
+      load(streamController); // enter data to the stream.
+
+      _refreshController.refreshCompleted();
+    } catch (e) {
+      _refreshController.refreshFailed();
+    }
+  }
 
   @override
   void dispose() {
@@ -35,44 +58,25 @@ class _FilesPageState extends State<FilesPage>
   @override
   void initState() {
     super.initState();
-
-    if (Globals.files.length == 0 || streamController == null) {
-      streamController = StreamController.broadcast();
-      streamController.stream.listen((msg) {
-        setState(() {
-          files.insert(0, msg);
-        });
-      });
-      load(streamController);
-      Globals.files = files;
-    }
-
-    files = Globals.files;
   }
 
   load(StreamController<FileInfo> sc) async {
+    // put files into the stream controler.
     Globals.client.getAllFiles().pipe(sc);
-  }
-
-  Widget _makeElement(int index) {
-    if (index >= files.length) {
-      return null;
-    }
-
-    return FileTile(info: files[index]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-        child: CustomScrollView(slivers: <Widget>[
-      SliverFixedExtentList(
-        itemExtent: 100.0,
-        delegate: SliverChildBuilderDelegate(
-          (BuildContext context, int index) => _makeElement(index),
-        ),
+    return SmartRefresher(
+      header: MaterialClassicHeader(
+        color: Colors.blue,
       ),
-    ]));
-   
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      child: ListView(
+        itemExtent: 80,
+        children: Globals.files,
+      ),
+    );
   }
 }

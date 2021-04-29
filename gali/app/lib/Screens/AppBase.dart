@@ -45,8 +45,6 @@ class _AppBaseState extends State<AppBase> {
     // _widgetOptions holds the pages
     final List<Widget> _widgetOptions = <Widget>[
       HomePage(),
-      HomePage(),
-      HomePage(),
       FilesPage(),
     ];
     void _onItemTapped(int index) {
@@ -66,15 +64,7 @@ class _AppBaseState extends State<AppBase> {
           backgroundColor: Theme.of(context).bottomAppBarColor,
         ),
         BottomNavigationBarItem(
-            icon: Icon(index == 1 ? Icons.star : Icons.star_outline),
-            label: "Starred",
-            backgroundColor: Theme.of(context).bottomAppBarColor),
-        BottomNavigationBarItem(
-            icon: Icon(index == 2 ? Icons.people : Icons.people_outlined),
-            label: "Shared",
-            backgroundColor: Theme.of(context).bottomAppBarColor),
-        BottomNavigationBarItem(
-            icon: Icon(index == 3 ? Icons.folder : Icons.folder_outlined),
+            icon: Icon(index == 1 ? Icons.folder : Icons.folder_outlined),
             label: "Files",
             backgroundColor: Theme.of(context).bottomAppBarColor),
       ];
@@ -87,12 +77,15 @@ class _AppBaseState extends State<AppBase> {
           child: Container(
             color: Theme.of(context).backgroundColor,
             child: ListView(
+              itemExtent: 60,
               padding: EdgeInsets.zero,
               children: <Widget>[
                 DrawerHeader(
-                  child: Placeholder(),
+                  child: LimitedBox(
+                      child: Placeholder()),
                 ),
                 ListTile(
+                  horizontalTitleGap: 0,
                   leading: Icon(Icons.access_time, color: color[800]),
                   title: Text(
                     'Recent',
@@ -101,15 +94,18 @@ class _AppBaseState extends State<AppBase> {
                 ListTile(
                   leading: Icon(Icons.offline_pin_outlined, color: color[800]),
                   title: Text('Offline'),
-                  onTap: () {}, 
+                  onTap: () {},
+                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.delete_outline, color: color[800]),
                   title: Text('Trash'),
+                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.settings_outlined, color: color[800]),
                   title: Text('Settings'),
+                  horizontalTitleGap: 0,
                   onTap: () {
                     Navigator.push(
                         context,
@@ -120,9 +116,11 @@ class _AppBaseState extends State<AppBase> {
                 ListTile(
                   leading: Icon(Icons.help_outline, color: color[800]),
                   title: Text('Help & Feedback'),
+                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.cloud_outlined, color: color[800]),
+                  horizontalTitleGap: 0,
                   title: Text(
                     'Storage',
                   ),
@@ -140,7 +138,8 @@ class _AppBaseState extends State<AppBase> {
                               AlwaysStoppedAnimation<Color>(Colors.blue),
                         ),
                         Spacer(),
-                        Text("${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
+                        Text(
+                            "${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
                             style: Theme.of(context).textTheme.subtitle1),
                       ],
                     ),
@@ -233,7 +232,7 @@ class ActionsButton extends StatelessWidget {
                                 icon: Icon(
                                   Icons.folder_open_rounded,
                                 ),
-                                onPressed: () async{
+                                onPressed: () async {
                                   FilePickerResult result = await FilePicker
                                       .platform
                                       .pickFiles(type: FileType.any);
@@ -271,7 +270,6 @@ class ActionsButton extends StatelessWidget {
                           backgroundColor: Theme.of(context).highlightColor,
                           radius: 30,
                         ),
-
                         CircleAvatar(
                           child: CircleAvatar(
                             radius: 29.5,
@@ -288,7 +286,6 @@ class ActionsButton extends StatelessWidget {
                           backgroundColor: Theme.of(context).highlightColor,
                           radius: 30,
                         ),
-
                       ],
                     ),
                     Spacer(

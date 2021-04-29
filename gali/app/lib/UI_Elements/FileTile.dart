@@ -4,6 +4,7 @@ import 'package:gali/globals.dart';
 import 'package:gali/grpc/protos/gali.pb.dart';
 
 import 'package:gali/grpc/protos/gali.pbgrpc.dart';
+import 'package:gali/helpers.dart';
 
 enum FileMenu { info, copy, save, remove }
 
@@ -13,6 +14,9 @@ class FileTile extends StatefulWidget {
     Key key,
     @required this.info,
   }) : super(key: key);
+
+  
+  FileInfo get getInfo => info;
 
   @override
   _FileTileState createState() => _FileTileState();
@@ -51,10 +55,15 @@ class _FileTileState extends State<FileTile> {
                   setState(() {
                     loadingProgress = 0;
                   });
+                  ScaffoldMessenger.of(context).showOkBar("Done Downloading");
                 });
                 break;
 
               case FileMenu.remove:
+                Globals.client.deleteFile(widget.info.id).then((value) =>
+                    ScaffoldMessenger.of(context)
+                        .showOkBar("${widget.info.name} was deleted"));
+
                 break;
             }
           },
