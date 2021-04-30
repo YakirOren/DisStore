@@ -81,20 +81,9 @@ class _AppBaseState extends State<AppBase> {
           child: Container(
             color: Theme.of(context).backgroundColor,
             child: ListView(
-              //itemExtent: 60,
+              padding: EdgeInsets.zero,
               children: <Widget>[
-                // DrawerHeader(
-
-                //   padding: EdgeInsets.symmetric(vertical: 1),
-                //   child: SvgPicture.asset(
-                //     'assets/icon/Distore2.svg',
-                //     fit: BoxFit.contain,
-                //   ),
-
-                // ),
-                //
                 UserAccountsDrawerHeader(
-
                   otherAccountsPictures: [
                     IconButton(
                       icon: Icon(Icons.logout, color: Colors.white),
@@ -116,13 +105,11 @@ class _AppBaseState extends State<AppBase> {
                               }),
                         );
                       },
-                    ),                  
+                    ),
                   ],
                   accountEmail: Text(Globals.client.getCachedMail),
-
                   accountName: Text(
                       "${Globals.client.getCachedFirstName.capitalize()} ${Globals.client.getCachedLastName.capitalize()}"),
-                  
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: AssetImage("assets/images/avatar.png"),
                   ),
