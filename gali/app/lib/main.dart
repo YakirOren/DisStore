@@ -61,7 +61,7 @@ class _MyAppState extends State<MyApp> {
         darkTheme: ThemeData(
           unselectedWidgetColor: Colors.white,
           accentColor: Colors.black,
-          primarySwatch: Colors.white.createMaterialColor(),
+          primarySwatch: Color(0xff7289DA).createMaterialColor(),
 
           hintColor: Colors.white30,
 
@@ -107,13 +107,13 @@ class _MyAppState extends State<MyApp> {
 
         theme: ThemeData(
             unselectedWidgetColor: Colors.black,
-            primarySwatch: Colors.black.createMaterialColor(),
             //primaryColor: Color(0xff111c4e),
             hintColor: Colors.black26,
             inputDecorationTheme: InputDecorationTheme(fillColor: Colors.white),
             accentColor: Colors.white,
             highlightColor: Colors.grey,
             bottomAppBarColor: Colors.white,
+            primarySwatch: Color(0xff7289DA).createMaterialColor(),
 
             //iconTheme: IconThemeData(color: Colors.grey) ,
             //primaryIconTheme: IconThemeData(color: Colors.grey),

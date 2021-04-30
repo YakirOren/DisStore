@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'dart:async';
 
 import 'package:gali/globals.dart';
@@ -11,11 +11,15 @@ import 'package:gali/Screens/FilesPage.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/cupertino.dart';
+
 import 'package:gali/helpers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gali/UI_Elements/confirm.dart';
+import 'package:gali/secure_storage.dart';
+import 'LoginPage.dart';
 
 //AppBase is the base of the application,
 //it has a navigation bar and
@@ -44,10 +48,8 @@ class _AppBaseState extends State<AppBase> {
   Widget build(BuildContext context) {
     // _widgetOptions holds the pages
     final List<Widget> _widgetOptions = <Widget>[
-      HomePage(),
-      HomePage(),
-      HomePage(),
       FilesPage(),
+      HomePage(),
     ];
     void _onItemTapped(int index) {
       context.read(Globals.selectedIndex).state = index;
@@ -61,22 +63,14 @@ class _AppBaseState extends State<AppBase> {
 
       final navItems = [
         BottomNavigationBarItem(
-          icon: Icon(index == 0 ? Icons.home : Icons.home_outlined),
-          label: "Home",
-          backgroundColor: Theme.of(context).bottomAppBarColor,
-        ),
-        BottomNavigationBarItem(
-            icon: Icon(index == 1 ? Icons.star : Icons.star_outline),
-            label: "Starred",
-            backgroundColor: Theme.of(context).bottomAppBarColor),
-        BottomNavigationBarItem(
-            icon: Icon(index == 2 ? Icons.people : Icons.people_outlined),
-            label: "Shared",
-            backgroundColor: Theme.of(context).bottomAppBarColor),
-        BottomNavigationBarItem(
-            icon: Icon(index == 3 ? Icons.folder : Icons.folder_outlined),
+            icon: Icon(index == 0 ? Icons.folder : Icons.folder_outlined),
             label: "Files",
             backgroundColor: Theme.of(context).bottomAppBarColor),
+        BottomNavigationBarItem(
+          icon: Icon(index == 1 ? Icons.search : Icons.search_outlined),
+          label: "Search",
+          backgroundColor: Theme.of(context).bottomAppBarColor,
+        ),
       ];
 
       return Scaffold(
@@ -89,27 +83,47 @@ class _AppBaseState extends State<AppBase> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: <Widget>[
-                DrawerHeader(
-                  child: Placeholder(),
-                ),
-                ListTile(
-                  leading: Icon(Icons.access_time, color: color[800]),
-                  title: Text(
-                    'Recent',
+                UserAccountsDrawerHeader(
+                  otherAccountsPictures: [
+                    IconButton(
+                      icon: Icon(Icons.logout, color: Colors.white),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => ConfirmDialog(
+                              danger: true,
+                              title: 'Log out?',
+                              content:
+                                  Text("Are you sure you want to log out?"),
+                              cancelFunction: () {
+                                Navigator.of(context).pop();
+                                return false;
+                              },
+                              actionText: Text('logout'),
+                              actionFunction: () async {
+                                logout(context);
+                              }),
+                        );
+                      },
+                    ),
+                  ],
+                  accountEmail: Text(Globals.client.getCachedMail),
+                  accountName: Text(
+                      "${Globals.client.getCachedFirstName.capitalize()} ${Globals.client.getCachedLastName.capitalize()}"),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundImage: AssetImage("assets/images/avatar.png"),
                   ),
                 ),
                 ListTile(
                   leading: Icon(Icons.offline_pin_outlined, color: color[800]),
                   title: Text('Offline'),
-                  onTap: () {}, 
-                ),
-                ListTile(
-                  leading: Icon(Icons.delete_outline, color: color[800]),
-                  title: Text('Trash'),
+                  onTap: () {},
+                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.settings_outlined, color: color[800]),
                   title: Text('Settings'),
+                  horizontalTitleGap: 0,
                   onTap: () {
                     Navigator.push(
                         context,
@@ -120,9 +134,11 @@ class _AppBaseState extends State<AppBase> {
                 ListTile(
                   leading: Icon(Icons.help_outline, color: color[800]),
                   title: Text('Help & Feedback'),
+                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.cloud_outlined, color: color[800]),
+                  horizontalTitleGap: 0,
                   title: Text(
                     'Storage',
                   ),
@@ -140,7 +156,8 @@ class _AppBaseState extends State<AppBase> {
                               AlwaysStoppedAnimation<Color>(Colors.blue),
                         ),
                         Spacer(),
-                        Text("${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
+                        Text(
+                            "${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
                             style: Theme.of(context).textTheme.subtitle1),
                       ],
                     ),
@@ -152,20 +169,15 @@ class _AppBaseState extends State<AppBase> {
             ),
           ),
         ),
-
         appBar: AppBar(
           iconTheme: IconThemeData(color: color),
-          centerTitle: false,
+          centerTitle: true,
           elevation: 1,
           backgroundColor: Theme.of(context).bottomAppBarColor,
         ),
         body: Center(
           child: _widgetOptions.elementAt(index),
         ),
-
-        //
-        //child: Container(color: Colors.red,),
-
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           showUnselectedLabels: false,
@@ -179,6 +191,16 @@ class _AppBaseState extends State<AppBase> {
       );
     });
   }
+}
+
+void logout(BuildContext context) {
+  SecureStorage.deleteSecureData('refreshToken');
+  Globals.files = [];
+  Navigator.of(context).pushReplacement(
+    MaterialPageRoute(builder: (context) {
+      return LoginPage();
+    }),
+  );
 }
 
 class ActionsButton extends StatelessWidget {
@@ -212,7 +234,7 @@ class ActionsButton extends StatelessWidget {
                     Text(
                       "Create new",
                       style: GoogleFonts.roboto(
-                        color: Colors.black,
+                        color: Theme.of(context).highlightColor,
                         fontWeight: FontWeight.w300,
                         fontSize: 20,
                         letterSpacing: -0.5,
@@ -233,7 +255,7 @@ class ActionsButton extends StatelessWidget {
                                 icon: Icon(
                                   Icons.folder_open_rounded,
                                 ),
-                                onPressed: () async{
+                                onPressed: () async {
                                   FilePickerResult result = await FilePicker
                                       .platform
                                       .pickFiles(type: FileType.any);
@@ -271,7 +293,6 @@ class ActionsButton extends StatelessWidget {
                           backgroundColor: Theme.of(context).highlightColor,
                           radius: 30,
                         ),
-
                         CircleAvatar(
                           child: CircleAvatar(
                             radius: 29.5,
@@ -288,7 +309,6 @@ class ActionsButton extends StatelessWidget {
                           backgroundColor: Theme.of(context).highlightColor,
                           radius: 30,
                         ),
-
                       ],
                     ),
                     Spacer(
