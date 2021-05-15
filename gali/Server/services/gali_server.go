@@ -137,6 +137,12 @@ func (server *GaliServer) DeleteFile(ctx context.Context, in *pb.FileRequest) (*
 
 }
 
+// turns out you cant have const byte slice in golang,
+// so I created this funciton to return the gif header.
+func getGIFHeader() []byte {
+	return []byte{0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x3B}
+}
+
 func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	req, err := stream.Recv()
@@ -161,7 +167,9 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 	fileData := bytes.Buffer{}
 
-	fileSize := int64(0)
+	fileData.Write(getGIFHeader())
+
+	fileSize := int64(14)
 	for {
 		err := contextError(stream.Context())
 		if err != nil {
@@ -191,7 +199,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 		if fileSize >= maximumSize {
 
 			newFile := make([]byte, maximumSize)
-			fileData.Read(newFile) // read 8mb
+			fileData.Read(newFile) // read the file size
 
 			log.Println("sending file " + strconv.Itoa(fileCount))
 
@@ -233,9 +241,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 // SendToDiscord
 func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCount int) {
 
-	fileName := "tmp"
-
-	f2, err := ioutil.TempFile("", fileName)
+	f2, err := ioutil.TempFile("", "tmp.*.gif")
 	check(err)
 
 	defer os.Remove(f2.Name())
