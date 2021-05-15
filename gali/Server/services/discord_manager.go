@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -32,6 +33,7 @@ type attachment struct {
 }
 
 type message struct {
+	ID          string       `json:"id"`
 	Attachments []attachment `json:"attachments"`
 }
 
@@ -61,9 +63,12 @@ func check(e error) {
 
 // UploadONeFile uploads the given file to discord.
 // max size for the file is 8mb
-func (dis *DiscordManager) UploadOneFile(filename string, filecount int) string {
+func (dis *DiscordManager) UploadOneFile(filename string, filecount int) message {
 
-	resp, err := dis.uploadFileMultipart("https://discord.com/api/channels/"+dis.FileChannels[filecount%len(dis.FileChannels)]+"/messages", filename, dis.ClientTokens[filecount%len(dis.ClientTokens)])
+	channelID := dis.FileChannels[filecount%len(dis.FileChannels)] // the channel the message will be sent to
+	auth := dis.ClientTokens[filecount%len(dis.ClientTokens)]      // the user token
+
+	resp, err := dis.uploadFileMultipart(channelID, filename, auth)
 	check(err)
 
 	if resp.Body != nil {
@@ -77,12 +82,24 @@ func (dis *DiscordManager) UploadOneFile(filename string, filecount int) string 
 	err = json.Unmarshal(body, &discordMsg)
 	check(err)
 
-	return discordMsg.Attachments[0].URL
+	dis.DeleteMessage(discordMsg.ID, channelID, auth)
+
+	return discordMsg
 	// return the URL of the file on discords CDN
 }
 
-func (dis *DiscordManager) uploadFileMultipart(url string, path string, auth string) (*http.Response, error) {
-	f, err := os.OpenFile(path, os.O_RDONLY, 0644)
+func (dis *DiscordManager) DeleteMessage(messageID, channelID, auth string) {
+
+	req, _ := http.NewRequest("DELETE", "https://discord.com/api/channels/"+channelID+"/messages/"+messageID, nil)
+
+	req.Header.Add("Authorization", auth)
+
+	http.DefaultClient.Do(req)
+
+}
+
+func (dis *DiscordManager) uploadFileMultipart(channelID string, FilePath string, auth string) (*http.Response, error) {
+	f, err := os.OpenFile(FilePath, os.O_RDONLY, 0644)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +124,9 @@ func (dis *DiscordManager) uploadFileMultipart(url string, path string, auth str
 		}
 	}
 	go func() {
-		partWriter, err := formWriter.CreateFormFile("file", path)
+		a := strings.Split(FilePath, "/")
+
+		partWriter, err := formWriter.CreateFormFile("file", a[len(a)-1])
 		setErr(err)
 		_, err = io.Copy(partWriter, bufferedFileReader)
 		setErr(err)
@@ -115,7 +134,7 @@ func (dis *DiscordManager) uploadFileMultipart(url string, path string, auth str
 		setErr(bodyWriter.Close())
 	}()
 
-	req, err := http.NewRequest("POST", url, bodyReader)
+	req, err := http.NewRequest("POST", "https://discord.com/api/channels/"+channelID+"/messages", bodyReader)
 	if err != nil {
 		return nil, err
 	}

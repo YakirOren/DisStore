@@ -208,6 +208,10 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 			fileCount++
 
+			fileData.Write(getGIFHeader())
+
+			fileSize += int64(14)
+
 		}
 
 	}
@@ -241,8 +245,10 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 // SendToDiscord
 func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCount int) {
 
-	f2, err := ioutil.TempFile("", "tmp.*.gif")
+	f2, err := ioutil.TempFile("temp", "*.gif")
 	check(err)
+
+	log.Println(f2.Name())
 
 	defer os.Remove(f2.Name())
 
@@ -252,11 +258,11 @@ func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCoun
 	f2.Close()
 	check(err)
 
-	url := server.discordManager.UploadOneFile(f2.Name(), fileCount)
+	discordMsg := server.discordManager.UploadOneFile(f2.Name(), fileCount)
 
 	log.Println("adding url")
 	// add the new url to the file document
-	server.mongoDBWrapper.addURL(fileID, url)
+	server.mongoDBWrapper.addURL(fileID, discordMsg.Attachments[0].URL)
 	check(err)
 
 }
