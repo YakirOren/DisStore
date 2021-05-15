@@ -2,9 +2,17 @@ package services
 
 import (
 	"os"
+	"strconv"
 
 	"github.com/andersfylling/disgord"
 	log "github.com/sirupsen/logrus"
+)
+
+var maximumSize = int64(0)
+
+const (
+	kilobyte = 1024
+	megabyte = 1024 * kilobyte
 )
 
 // EmailManager handels sending mails to the users.
@@ -16,7 +24,12 @@ type DiscordManager struct {
 //NewEmailManager creates a new EmailManager.
 func NewDiscordManager(
 	ChannelIDs,
-	tokens []string) *DiscordManager {
+	tokens []string, FileSize string) *DiscordManager {
+
+	size, err := strconv.Atoi(FileSize)
+	check(err)
+
+	maximumSize = int64(size)*megabyte - kilobyte
 
 	a := &DiscordManager{}
 
@@ -34,12 +47,6 @@ func NewDiscordManager(
 
 	return a
 }
-
-const (
-	kilobyte    = 1024
-	megabyte    = 1024 * kilobyte
-	maximumSize = 8*megabyte - kilobyte
-)
 
 func check(e error) {
 	if e != nil {

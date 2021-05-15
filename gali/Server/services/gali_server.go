@@ -213,7 +213,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	log.Println("sending file " + strconv.Itoa(fileCount))
 	go server.SendToDiscord(newFile, id, fileCount)
 
-	fileSize += int64(fileCount * maximumSize)
+	fileSize += int64(int64(fileCount) * maximumSize)
 
 	size := float64(float64(fileSize) / math.Pow10(9)) // convert bytes to gb
 	err = server.mongoDBWrapper.IncUsedStorage(claims.Email, size)

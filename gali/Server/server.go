@@ -52,7 +52,7 @@ func main() {
 		log.Fatal("❌\n", err)
 	}
 
-	discordManager := services.NewDiscordManager(config.FileChannels, config.DiscordTokens)
+	discordManager := services.NewDiscordManager(config.FileChannels, config.DiscordTokens, config.FileSize)
 
 	for _, client := range discordManager.Clients {
 		defer client.Gateway().StayConnectedUntilInterrupted()
