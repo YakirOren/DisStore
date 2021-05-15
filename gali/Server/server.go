@@ -54,10 +54,6 @@ func main() {
 
 	discordManager := services.NewDiscordManager(config.FileChannels, config.DiscordTokens, config.FileSize)
 
-	for _, client := range discordManager.Clients {
-		defer client.Gateway().StayConnectedUntilInterrupted()
-	}
-
 	authServer := services.NewAuthServer(*mongoDBWrapper, jwtManager, emailManager)
 	logic := services.NewGaliServer(*mongoDBWrapper, jwtManager, discordManager)
 

@@ -1,10 +1,16 @@
 package services
 
 import (
+	"bufio"
+	"encoding/json"
+	"io"
+	"io/ioutil"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"strconv"
+	"sync"
 
-	"github.com/andersfylling/disgord"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,8 +23,16 @@ const (
 
 // EmailManager handels sending mails to the users.
 type DiscordManager struct {
-	FileChannels []disgord.Snowflake
-	Clients      []*disgord.Client
+	FileChannels []string
+	ClientTokens []string
+}
+
+type attachment struct {
+	URL string `json:"url"`
+}
+
+type message struct {
+	Attachments []attachment `json:"attachments"`
 }
 
 //NewEmailManager creates a new EmailManager.
@@ -33,17 +47,8 @@ func NewDiscordManager(
 
 	a := &DiscordManager{}
 
-	for _, t := range tokens {
-		client := disgord.New(disgord.Config{
-			BotToken: t,
-		})
-		a.Clients = append(a.Clients, client)
-
-	}
-
-	for _, id := range ChannelIDs {
-		a.FileChannels = append(a.FileChannels, disgord.ParseSnowflakeString(id))
-	}
+	a.ClientTokens = tokens
+	a.FileChannels = ChannelIDs
 
 	return a
 }
@@ -56,21 +61,77 @@ func check(e error) {
 
 // UploadONeFile uploads the given file to discord.
 // max size for the file is 8mb
-func (dis *DiscordManager) UploadOneFile(fileData []byte, filename string, filecount int) string {
+func (dis *DiscordManager) UploadOneFile(filename string, filecount int) string {
 
-	f1, err := os.Open(filename)
+	resp, err := dis.uploadFileMultipart("https://discord.com/api/channels/"+dis.FileChannels[filecount%len(dis.FileChannels)]+"/messages", filename, dis.ClientTokens[filecount%len(dis.ClientTokens)])
 	check(err)
-	defer f1.Close()
 
-	// upload the file to discord, this is blocking, may want to make it async or something
-	discordMsg, errUpload := dis.Clients[filecount%len(dis.Clients)].Channel(dis.FileChannels[filecount%len(dis.FileChannels)]).CreateMessage(&disgord.CreateMessageParams{
-		Files: []disgord.CreateMessageFileParams{
-			{Reader: f1, FileName: f1.Name(), SpoilerTag: false},
-		},
-	})
-	check(errUpload)
+	if resp.Body != nil {
+		defer resp.Body.Close()
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	check(err)
+
+	discordMsg := message{}
+	err = json.Unmarshal(body, &discordMsg)
+	check(err)
 
 	return discordMsg.Attachments[0].URL
-
 	// return the URL of the file on discords CDN
+}
+
+func (dis *DiscordManager) uploadFileMultipart(url string, path string, auth string) (*http.Response, error) {
+	f, err := os.OpenFile(path, os.O_RDONLY, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	// Reduce number of syscalls when reading from disk.
+	bufferedFileReader := bufio.NewReader(f)
+	defer f.Close()
+
+	// Create a pipe for writing from the file and reading to
+	// the request concurrently.
+	bodyReader, bodyWriter := io.Pipe()
+	formWriter := multipart.NewWriter(bodyWriter)
+
+	// Store the first write error in writeErr.
+	var (
+		writeErr error
+		errOnce  sync.Once
+	)
+	setErr := func(err error) {
+		if err != nil {
+			errOnce.Do(func() { writeErr = err })
+		}
+	}
+	go func() {
+		partWriter, err := formWriter.CreateFormFile("file", path)
+		setErr(err)
+		_, err = io.Copy(partWriter, bufferedFileReader)
+		setErr(err)
+		setErr(formWriter.Close())
+		setErr(bodyWriter.Close())
+	}()
+
+	req, err := http.NewRequest("POST", url, bodyReader)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", formWriter.FormDataContentType())
+
+	req.Header.Add("Authorization", auth)
+
+	// This operation will block until both the formWriter
+	// and bodyWriter have been closed by the goroutine,
+	// or in the event of a HTTP error.
+	resp, err := http.DefaultClient.Do(req)
+
+	if writeErr != nil {
+		return nil, writeErr
+	}
+
+	return resp, err
 }

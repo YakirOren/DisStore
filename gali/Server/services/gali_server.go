@@ -246,7 +246,7 @@ func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCoun
 	f2.Close()
 	check(err)
 
-	url := server.discordManager.UploadOneFile(fileData, f2.Name(), fileCount)
+	url := server.discordManager.UploadOneFile(f2.Name(), fileCount)
 
 	log.Println("adding url")
 	// add the new url to the file document
