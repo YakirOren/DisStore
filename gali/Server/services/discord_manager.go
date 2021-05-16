@@ -1,15 +1,13 @@
 package services
 
 import (
-	"bufio"
+	"bytes"
 	"encoding/json"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -63,12 +61,12 @@ func check(e error) {
 }
 
 // UploadONeFile uploads the given file to discord.
-func (dis *DiscordManager) UploadOneFile(filename string, filecount int) message {
+func (dis *DiscordManager) UploadOneFile(fileData []byte, filecount int) message {
 
 	channelID := dis.FileChannels[filecount%len(dis.FileChannels)] // the channel the message will be sent to
 	auth := dis.ClientTokens[filecount%len(dis.ClientTokens)]      // the user token
 
-	resp, err := dis.uploadFileMultipart(channelID, filename, auth)
+	resp, err := dis.uploadFileMultipart(channelID, fileData, auth)
 	check(err)
 
 	if resp.Body != nil {
@@ -98,18 +96,12 @@ func (dis *DiscordManager) DeleteMessage(messageID, channelID, auth string) {
 
 }
 
-func (dis *DiscordManager) uploadFileMultipart(channelID string, FilePath string, auth string) (*http.Response, error) {
-	f, err := os.OpenFile(FilePath, os.O_RDONLY, 0644)
-	if err != nil {
-		return nil, err
-	}
+func (dis *DiscordManager) uploadFileMultipart(channelID string, fileData []byte, auth string) (*http.Response, error) {
 
-	// Reduce number of syscalls when reading from disk.
-	bufferedFileReader := bufio.NewReader(f)
-	defer f.Close()
+	bufferedFileReader := bytes.NewReader(fileData)
 
-	// Create a pipe for writing from the file and reading to
-	// the request concurrently.
+	// // Create a pipe for writing from the file and reading to
+	// // the request concurrently.
 	bodyReader, bodyWriter := io.Pipe()
 	formWriter := multipart.NewWriter(bodyWriter)
 
@@ -124,9 +116,7 @@ func (dis *DiscordManager) uploadFileMultipart(channelID string, FilePath string
 		}
 	}
 	go func() {
-		a := strings.Split(FilePath, "/")
-
-		partWriter, err := formWriter.CreateFormFile("file", a[len(a)-1])
+		partWriter, err := formWriter.CreateFormFile("file", "temp.gif")
 		setErr(err)
 		_, err = io.Copy(partWriter, bufferedFileReader)
 		setErr(err)
