@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:gali/globals.dart';
@@ -14,6 +17,8 @@ import 'protos/gali.pbgrpc.dart';
 import 'package:device_info/device_info.dart';
 import 'package:gali/secure_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'package:http/http.dart' as http;
 
 class GaliClient {
   final SecureStorage secureStorage = SecureStorage();
@@ -44,7 +49,6 @@ class GaliClient {
   String get getCachedLastName => _lastName;
   String get getCachedMail => _mail;
   double get getUsedStorage => _storage;
-
 
   Future<LoginResponse> login(String mail, String password) async {
     LoginResponse response;
@@ -173,7 +177,6 @@ class GaliClient {
 
   // fragFile returns a stream of file chunks of the given file.
   Stream<FileChunk> fragFile(PlatformFile file) async* {
-    
     // sending the first Chunk with the metadata
     yield FileChunk(fileName: file.name);
 
@@ -182,7 +185,7 @@ class GaliClient {
 
     // send the file as chunks.
     while (true) {
-      var data = await reader.read(512); // reading 512 bytes from the stream
+      var data = await reader.read(2048); // reading 2048 bytes from the stream
 
       // contiune to read untill the end of the file has been reached.
       if (data.length == 0) {
@@ -242,20 +245,18 @@ class GaliClient {
 
       int i = 0;
       for (var url in response.fragments) {
-        final request = await HttpClient().getUrl(Uri.parse(url));
 
-        final r = await request.close();
-        await r.pipe(File('$path/$_fileName').openWrite(mode: FileMode.append));
+        var bytes = new List<int>.from(await http.readBytes(url));
 
+        bytes.removeRange(0, 14); // remove the gif header from the file.
+
+        await File('$path/$_fileName').writeAsBytes(bytes, mode: FileMode.append);
+  
         yield ((i / response.fragments.length));
         i++;
-
-        // download all the files
-        //
-        // combine them using bytes buffer
-        // save the file.
-
+      
       }
+      
     } else {
       // handle the scenario when user declines the permissions
     }
@@ -265,8 +266,6 @@ class GaliClient {
     final response = _authenticatedClient.deleteFile(FileRequest(id: id));
 
     Globals.files.removeWhere((element) => element.info.id == id);
-
-    
 
     return response;
   }
