@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -62,7 +63,6 @@ func check(e error) {
 }
 
 // UploadONeFile uploads the given file to discord.
-// max size for the file is 8mb
 func (dis *DiscordManager) UploadOneFile(filename string, filecount int) message {
 
 	channelID := dis.FileChannels[filecount%len(dis.FileChannels)] // the channel the message will be sent to
@@ -89,7 +89,7 @@ func (dis *DiscordManager) UploadOneFile(filename string, filecount int) message
 }
 
 func (dis *DiscordManager) DeleteMessage(messageID, channelID, auth string) {
-
+	time.Sleep(time.Second * 5)
 	req, _ := http.NewRequest("DELETE", "https://discord.com/api/channels/"+channelID+"/messages/"+messageID, nil)
 
 	req.Header.Add("Authorization", auth)
