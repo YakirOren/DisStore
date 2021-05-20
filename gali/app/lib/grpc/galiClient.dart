@@ -1,9 +1,5 @@
-import 'dart:ffi';
-import 'dart:typed_data';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:gali/globals.dart';
 import 'package:grpc/grpc.dart';
 import 'package:grpc/service_api.dart' as $grpc;
 import 'package:chunked_stream/chunked_stream.dart';
@@ -245,18 +241,15 @@ class GaliClient {
 
       int i = 0;
       for (var url in response.fragments) {
-
         var bytes = new List<int>.from(await http.readBytes(url));
-
         bytes.removeRange(0, 14); // remove the gif header from the file.
 
-        await File('$path/$_fileName').writeAsBytes(bytes, mode: FileMode.append);
-  
+        await File('$path/$_fileName')
+            .writeAsBytes(bytes, mode: FileMode.append);
+
         yield ((i / response.fragments.length));
         i++;
-      
       }
-      
     } else {
       // handle the scenario when user declines the permissions
     }
@@ -265,7 +258,7 @@ class GaliClient {
   Future<StatusResponse> deleteFile(String id) async {
     final response = _authenticatedClient.deleteFile(FileRequest(id: id));
 
-    Globals.files.removeWhere((element) => element.info.id == id);
+    //files.removeWhere((element) => element.info.id == id);
 
     return response;
   }

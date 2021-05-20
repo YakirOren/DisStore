@@ -19,7 +19,6 @@ class VerifyPage extends StatefulWidget {
 }
 
 class _VerifyPageState extends State<VerifyPage> {
-  // var onTapRecognizer;
 
   TextEditingController textEditingController = TextEditingController();
 
@@ -32,7 +31,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
   void login() async {
     try {
-      await Globals.client.login(widget.email, widget.password);
+      await client.login(widget.email, widget.password);
 
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) {
@@ -46,7 +45,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
   void resetPassword() async {
     try {
-      await Globals.client
+      await client
           .resetPassword(widget.email, widget.password, currentText);
 
       // redirect to the login page
@@ -62,7 +61,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
   void resendCode() async {
     try {
-      await Globals.client.resendCode(widget.email);
+      await client.resendCode(widget.email);
       ScaffoldMessenger.of(context).showOkBar('A new verification code was sent!');
     } catch (e) {
       ScaffoldMessenger.of(context).showErrorBar(e);
@@ -259,7 +258,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
     try {
       // send the server a verify request.
-      await Globals.client.verify(currentText, widget.email);
+      await client.verify(currentText, widget.email);
       setState(() {
         hasError = false;
       });

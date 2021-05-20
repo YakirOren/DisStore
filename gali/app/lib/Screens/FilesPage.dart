@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gali/UI_Elements/FileTile.dart';
 
 import 'package:gali/globals.dart';
@@ -11,71 +11,49 @@ import 'package:gali/grpc/protos/gali.pbgrpc.dart';
 
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class FilesPage extends StatefulWidget {
-  FilesPage({
-    Key key,
-  }) : super(key: key);
+class FilesPage extends ConsumerWidget {
+  final _refreshController = RefreshController(initialRefresh: (true));
 
   @override
-  _FilesPageState createState() => _FilesPageState();
-}
+  Widget build(BuildContext context, ScopedReader watch) {
+    final streamController = StreamController<FileInfo>.broadcast();
+    final listFile = watch(fi);
 
-class _FilesPageState extends State<FilesPage> {
-  StreamController<FileInfo> streamController;
-  RefreshController _refreshController =
-      RefreshController(initialRefresh: (Globals.files.length == 0));
-
-  void _onRefresh() async {
-    await Future.delayed(Duration(milliseconds: 1500));
-    Globals.files = [];
-    streamController = StreamController.broadcast();
-
-    // setup the controller
-    streamController.stream.listen((msg) {
-      // this funciton runs everytime a msg enters the stream.
-
-      Globals.files.insert(0, FileTile(info: msg));
-      setState(() {});
-    });
-
-    try {
-      load(streamController); // enter data to the stream.
-      _refreshController.refreshCompleted();
-    } catch (e) {
-      _refreshController.refreshFailed();
-    }
-  }
-
-  @override
-  void dispose() {
-    // Clean up the controller when the widget is disposed.
-    super.dispose();
-    streamController?.close();
-    streamController = null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  load(StreamController<FileInfo> sc) async {
-    // put files into the stream controler.
-    Globals.client.getAllFiles().pipe(sc);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return SmartRefresher(
       header: MaterialClassicHeader(
         color: Colors.blue,
       ),
       controller: _refreshController,
-      onRefresh: _onRefresh,
-      child: ListView(
+      onRefresh: () {
+        context.read(fi.notifier).clear();
+        streamController.stream.listen((msg) {
+          // this funciton runs everytime a msg enters the stream.
+
+          context.read(fi.notifier).add(msg);
+        });
+
+        try {
+          load(streamController); // enter data to the stream.
+          _refreshController.refreshCompleted();
+        } catch (e) {
+          _refreshController.refreshFailed();
+        }
+      },
+      child: ListView.builder(
         itemExtent: 80,
-        children: Globals.files,
+        itemBuilder: (context, index) {
+          return FileTile(
+            info: listFile[index],
+          );
+        },
+        itemCount: listFile.length,
       ),
+
     );
+  }
+
+  load(StreamController<FileInfo> sc) async {
+    // put files into the stream controler.
+    client.getAllFiles().pipe(sc);
   }
 }

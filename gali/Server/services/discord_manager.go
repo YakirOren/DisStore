@@ -80,7 +80,7 @@ func (dis *DiscordManager) UploadOneFile(fileData []byte, filecount int) message
 	err = json.Unmarshal(body, &discordMsg)
 	check(err)
 
-	dis.DeleteMessage(discordMsg.ID, channelID, auth)
+	//dis.DeleteMessage(discordMsg.ID, channelID, auth)
 
 	return discordMsg
 	// return the URL of the file on discords CDN
