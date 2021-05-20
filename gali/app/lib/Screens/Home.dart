@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:gali/UI_Elements/FileTile.dart';
 import 'package:gali/globals.dart';
@@ -24,23 +25,32 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class SearchFriend extends StatefulWidget {
+class SearchFriend extends ConsumerWidget {
   @override
-  _SearchFriendState createState() => _SearchFriendState();
-}
+  Widget build(BuildContext context, ScopedReader watch) {
+    Future<List<FileTile>> search(String search) async {
+      return Future.delayed(
+          Duration(seconds: 1, milliseconds: 500),
+          () => context
+              .read(fi)
+              .where((element) =>
+                  element.name.toLowerCase().contains(search.toLowerCase()))
+              .map((info) => FileTile(
+                    info: info,
+                  ))
+              .toList());
 
-class _SearchFriendState extends State<SearchFriend> {
-  Future<List<FileTile>> search(String search) async {
-    await Future.delayed(Duration(seconds: 1));
+    }
 
-    return Globals.files.where((e) => e.info.name.contains(search)).toList();
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return SearchBar<FileTile>(
       mainAxisSpacing: 30,
-      suggestions: Globals.files.sublist(0, (Globals.files.length ~/ 2)),
+      suggestions: context
+          .read(fi)
+          .getRange(0, context.read(fi).length ~/ 2)
+          .map((info) => FileTile(
+                info: info,
+              ))
+          .toList(),
       searchBarStyle: SearchBarStyle(
           borderRadius: BorderRadius.circular(16.0),
           backgroundColor: Theme.of(context).bottomAppBarColor),

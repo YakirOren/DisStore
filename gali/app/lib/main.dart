@@ -19,6 +19,8 @@ void main() {
   );
 }
 
+final myProvider = StateProvider((ref) => 0);
+
 /// This is the main application widget.
 class MyApp extends StatefulWidget {
   @override
@@ -32,12 +34,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    Globals.client.loginWithRefresh().then((value) {
+    client.loginWithRefresh().then((value) {
       setState(() {
         shouldMoveUser = value;
       });
       SecureStorage.readSecureData('ThemeIndex')
-          .then((index) => Globals.updateThemeMode(int.parse(index), context))
+          .then((index) => updateThemeMode(int.parse(index), context))
           .catchError((e) => print(e));
 
       // if (shouldMoveUser) {
@@ -54,7 +56,7 @@ class _MyAppState extends State<MyApp> {
         currentFocus.focusedChild.unfocus();
       }
     }, child: Consumer(builder: (context, watch, _) {
-      final theme = watch(Globals.themeMode).state;
+      final theme = watch(themeMode).state;
       return MaterialApp(
         themeMode: theme,
         // this is the theme of the app.

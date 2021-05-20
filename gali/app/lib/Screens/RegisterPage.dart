@@ -208,7 +208,7 @@ class _MyFormState extends State<MyForm> {
                                   setState(() {
                                     _loading = true;
                                   });
-                                  await Globals.client.register(
+                                  await client.register(
                                       firstNameController.text,
                                       lastNameController.text,
                                       emailController.text,

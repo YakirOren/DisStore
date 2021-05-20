@@ -13,6 +13,7 @@ import 'package:grpc/grpc_connection_interface.dart';
 import 'AppBase.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gali/helpers.dart';
+import 'package:gali/globals.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -78,7 +79,7 @@ class _MyFormState extends State<MyForm> {
             _loading = true;
           });
 
-          await Globals.client
+          await client
               .login(emailControler.text, passwordControler.text);
 
           Navigator.of(context).pushReplacement(

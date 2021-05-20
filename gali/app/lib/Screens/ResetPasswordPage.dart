@@ -69,8 +69,7 @@ class _MyFormState extends State<MyForm> {
             _loading = true;
           });
 
-          await Globals.client
-              .resetPassword(emailController.text, passwordController.text, '');
+          await client.resetPassword(emailController.text, passwordController.text, '');
 
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) {

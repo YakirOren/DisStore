@@ -1,3 +1,5 @@
+import 'package:http/http.dart';
+
 import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:intl/intl.dart';
@@ -45,6 +47,13 @@ extension Errors on ScaffoldMessengerState {
     ));
   }
 
+  // showErrorBar displays the grpc error to the user.
+  void showHTTPErrorBar(ClientException e) {
+    this.showSnackBar(SnackBar(
+      content: Text('${e.toString()}'),
+      backgroundColor: Colors.red,
+    ));
+  }
 
   // showErrorBar displays the grpc error to the user.
   void showOkBar(String content) {
