@@ -96,26 +96,30 @@ class GaliClient {
     _refreshToken = await SecureStorage.readSecureData('refreshToken');
     LoginResponse response;
 
-    try {
-      response = await _unauthenticatedClient
-          .refreshToken(RefreshTokenRequest()..refreshToken = _refreshToken);
-    } catch (e) {
-      //rethrow; // cant login so throw the error
-      return false;
+    if (_refreshToken != null) {
+      try {
+        response = await _unauthenticatedClient
+            .refreshToken(RefreshTokenRequest()..refreshToken = _refreshToken);
+      } catch (e) {
+        //rethrow; // cant login so throw the error
+        return false;
+      }
+
+      _accessToken = response.accessToken;
+      tokenExpiresOn = response.expiresOn;
+      _refreshToken = response.refreshToken;
+
+      await SecureStorage.writeSecureData('refreshToken', _refreshToken);
+      channel.setAccessTokenMetadata(_accessToken);
+      _authenticatedClient =
+          galiClient(channel); // create the authenticated client
+
+      await getUserInfo();
+
+      return true;
     }
 
-    _accessToken = response.accessToken;
-    tokenExpiresOn = response.expiresOn;
-    _refreshToken = response.refreshToken;
-
-    await SecureStorage.writeSecureData('refreshToken', _refreshToken);
-    channel.setAccessTokenMetadata(_accessToken);
-    _authenticatedClient =
-        galiClient(channel); // create the authenticated client
-
-    await getUserInfo();
-
-    return true;
+    return false;
   }
 
   Future<StatusResponse> register(
@@ -257,8 +261,6 @@ class GaliClient {
 
   Future<StatusResponse> deleteFile(String id) async {
     final response = _authenticatedClient.deleteFile(FileRequest(id: id));
-
-    //files.removeWhere((element) => element.info.id == id);
 
     return response;
   }

@@ -31,7 +31,7 @@ class AppButton extends StatelessWidget {
         ? Text(text,
             textAlign: TextAlign.center,
             style: style.copyWith(
-                color: Theme.of(context).accentColor,
+                color: Colors.white,
                 fontWeight: FontWeight.bold))
         : CupertinoActivityIndicator());
 

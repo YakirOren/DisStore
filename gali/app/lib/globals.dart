@@ -7,63 +7,32 @@ import 'secure_storage.dart';
 
 // this is the index of the current page.
 var selectedIndex = StateProvider((ref) => 0);
-var themeMode = StateProvider((ref) => ThemeMode.system);
+//var themeMode = StateProvider((ref) => ThemeMode.system);
 
 // final fileTileProvider = StateNotifierProvider((ref) {
 //   return FilesNotifier();
 // });
 
 final fi = StateNotifierProvider<FilesNotifier, List<FileInfo>>((ref) {
-    return FilesNotifier();
+  return FilesNotifier();
 });
 
+final themeMode = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier();
+});
 
 var client = new GaliClient(GaliChannel(
   ClientChannel(
-    '192.168.1.22',
-    port: 6969,
+    '6.tcp.ngrok.io',
+    port: 11889,
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   ),
 ));
 
-/// [updateThemeMode] changes [Globals.themeMode] for a given index.
-///
-/// 0 -> darkTheme
-/// 1 -> lightTheme
-/// 2 -> system theme.
-void updateThemeMode(int index, BuildContext context) {
-  switch (index) {
-    case 0:
-      {
-        context.read(themeMode).state = ThemeMode.dark;
-        break;
-      }
-    case 1:
-      {
-        context.read(themeMode).state = ThemeMode.light;
-        break;
-      }
-    case 2:
-      {
-        context.read(themeMode).state = ThemeMode.system;
-        break;
-      }
-  }
-
-  SecureStorage.writeSecureData('ThemeIndex', index.toString());
-}
-
-bool isDarkMode(BuildContext context) {
-  var brightness = MediaQuery.of(context).platformBrightness;
-  bool darkModeOn = (context.read(themeMode).state == ThemeMode.dark &&
-      brightness == Brightness.dark);
-  return darkModeOn;
-}
-
 class FilesNotifier extends StateNotifier<List<FileInfo>> {
   FilesNotifier() : super([]);
 
-  void clear(){
+  void clear() {
     state = [];
   }
 
@@ -77,4 +46,36 @@ class FilesNotifier extends StateNotifier<List<FileInfo>> {
         if (ft != tile) tile
     ];
   }
+}
+
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier() : super(ThemeMode.system);
+
+  /// [updateThemeMode] changes [Globals.themeMode] for a given index.
+  ///
+  /// 0 -> darkTheme
+  /// 1 -> lightTheme
+  /// 2 -> system theme.
+  void updateThemeMode(int index) {
+    switch (index) {
+      case 0:
+        {
+          state = ThemeMode.dark;
+          break;
+        }
+      case 1:
+        {
+          state = ThemeMode.light;
+          break;
+        }
+      case 2:
+        {
+          state = ThemeMode.system;
+          break;
+        }
+    }
+
+    SecureStorage.writeSecureData('ThemeIndex', index.toString());
+  }
+
 }
