@@ -32,15 +32,19 @@ class AppInputField extends StatelessWidget {
         fontSize: 18.0,
         color: Theme.of(context).highlightColor);
 
-    return Column(children: [
-      Align(
-          alignment: Alignment.bottomLeft,
-          child: RichText(
-              text: TextSpan(
-                  style: style.copyWith(
-                      fontWeight: FontWeight.w300,
-                      fontSize: style.fontSize / 1.5),
-                  text: title))),
+    return Column(
+
+      children: [
+      // Align(
+      //     alignment: Alignment.topLeft,
+      //     child: RichText(
+      //         text: TextSpan(
+      //             style: style.copyWith(
+      //                 fontWeight: FontWeight.w300,
+
+      //                 fontSize: style.fontSize / 1.25),
+      //             text: title))),
+
       TextFormField(
         focusNode: focusNode,
         autocorrect: false,

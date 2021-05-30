@@ -22,7 +22,7 @@ class _VerifyPageState extends State<VerifyPage> {
 
   TextEditingController textEditingController = TextEditingController();
 
-  StreamController<ErrorAnimationType> errorController;
+  StreamController<ErrorAnimationType> errorController = StreamController<ErrorAnimationType>();
 
   bool hasError = false;
   String currentText = "";
@@ -70,7 +70,6 @@ class _VerifyPageState extends State<VerifyPage> {
 
   @override
   void initState() {
-    errorController = StreamController<ErrorAnimationType>();
     super.initState();
   }
 

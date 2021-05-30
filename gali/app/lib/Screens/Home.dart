@@ -16,7 +16,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
         color: Theme.of(context).backgroundColor,
         child: LimitedBox(
           maxHeight: 400,
