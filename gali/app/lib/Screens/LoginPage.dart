@@ -11,9 +11,8 @@ import 'package:gali/UI_Elements/FullLogo.dart';
 import 'package:gali/globals.dart';
 import 'package:grpc/grpc_connection_interface.dart';
 import 'AppBase.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gali/helpers.dart';
-import 'package:gali/globals.dart';
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -34,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 FullLogo(),
-                SizedBox(height: 45.0),
+
                 MyForm(),
               ],
             ),
@@ -53,7 +52,9 @@ class MyForm extends StatefulWidget {
 class _MyFormState extends State<MyForm> {
   final emailControler = TextEditingController();
   final passwordControler = TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
+  bool _loading = false;
+  
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -62,8 +63,7 @@ class _MyFormState extends State<MyForm> {
     super.dispose();
   }
 
-  final _formKey = GlobalKey<FormState>();
-  bool _loading = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -114,6 +114,7 @@ class _MyFormState extends State<MyForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               AppInputField(
+
                 placeholderText: 'Email',
                 title: 'Email Address',
                 controller: emailControler,
@@ -150,7 +151,7 @@ class _MyFormState extends State<MyForm> {
                         TextSpan(
                             text: 'Forgot password?',
                             style: style.copyWith(
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                                 fontWeight: FontWeight.w500,
                                 fontSize: style.fontSize / 1.5),
                             recognizer: TapGestureRecognizer()
@@ -172,6 +173,7 @@ class _MyFormState extends State<MyForm> {
                   borderRadius: BorderRadius.circular(30.0),
                   color: Color(0xff01A0C7),
                   child: AppButton(
+
                     text: "Login",
                     isLoading: _loading,
                     clickFunction: () async {
@@ -197,7 +199,7 @@ class _MyFormState extends State<MyForm> {
                         TextSpan(
                             text: 'Register',
                             style: style.copyWith(
-                                color: Theme.of(context).primaryColor,
+                                color: Theme.of(context).accentColor,
                                 fontWeight: FontWeight.w500,
                                 fontSize: style.fontSize / 1.5),
                             recognizer: TapGestureRecognizer()

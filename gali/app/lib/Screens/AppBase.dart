@@ -84,6 +84,7 @@ class _AppBaseState extends State<AppBase> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 UserAccountsDrawerHeader(
+                  arrowColor: Theme.of(context).backgroundColor,
                   otherAccountsPictures: [
                     IconButton(
                       icon: Icon(Icons.logout, color: Colors.white),
@@ -115,11 +116,11 @@ class _AppBaseState extends State<AppBase> {
                   ),
                 ),
                 ListTile(
-                  leading: Icon(Icons.offline_pin_outlined, color: color[800]),
-                  title: Text('Offline'),
-                  onTap: () {},
+                  leading: Icon(Icons.help_outline, color: color[800]),
+                  title: Text('Help & Feedback'),
                   horizontalTitleGap: 0,
                 ),
+                
                 ListTile(
                   leading: Icon(Icons.settings_outlined, color: color[800]),
                   title: Text('Settings'),
@@ -131,11 +132,7 @@ class _AppBaseState extends State<AppBase> {
                             builder: (BuildContext context) => SettingsPage()));
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.help_outline, color: color[800]),
-                  title: Text('Help & Feedback'),
-                  horizontalTitleGap: 0,
-                ),
+                
                 ListTile(
                   leading: Icon(Icons.cloud_outlined, color: color[800]),
                   horizontalTitleGap: 0,
@@ -219,6 +216,7 @@ class ActionsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
+      
       child: LimitedBox(
         maxHeight: 20,
         maxWidth: 20,
@@ -344,7 +342,7 @@ class ActionsButton extends StatelessWidget {
         );
       },
       foregroundColor: Theme.of(context).highlightColor,
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).bottomAppBarColor,
     );
   }
 }
