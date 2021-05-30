@@ -21,7 +21,44 @@ class ProgNotf extends StateNotifier<double> {
   }
 }
 
+class HexColor extends Color {
+  static int _getColorFromHex(String hexColor) {
+    hexColor = hexColor.toUpperCase().replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF" + hexColor;
+    }
+    return int.parse(hexColor, radix: 16);
+  }
+
+  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
+}
+
 class FileTile extends ConsumerWidget {
+  int djb2(String str) {
+    var hash = 5381;
+    for (var i = 0; i < str.length; i++) {
+      hash = ((hash << 5) + hash) + str.codeUnitAt(i); /* hash * 33 + c */
+    }
+    return hash;
+  }
+
+  dynamic hashStringToColor(str) {
+    var hash = djb2(str);
+    var r = (hash & 0xFF0000) >> 16;
+    var g = (hash & 0x00FF00) >> 8;
+    var b = hash & 0x0000FF;
+
+    var r1 = ("0" + r.toRadixString(16));
+
+    var g1 = ("0" + g.toRadixString(16));
+    var b1 = ("0" + b.toRadixString(16));
+
+    return "#" +
+        r1.substring(r1.length - 2) +
+        g1.substring(g1.length - 2) +
+        b1.substring(b1.length - 2);
+  }
+
   final FileInfo info;
 
   FileTile({
@@ -34,6 +71,17 @@ class FileTile extends ConsumerWidget {
   final prog = StateNotifierProvider<ProgNotf, double>((ref) {
     return ProgNotf();
   });
+
+  String getFileExtension(String fileName) {
+    String ext = "";
+
+    int i = fileName.lastIndexOf('.');
+    if (i > 0) {
+      ext = fileName.substring(i + 1);
+    }
+
+    return ext;
+  }
 
   @override
   Widget build(BuildContext context, ScopedReader watch) {
@@ -51,12 +99,29 @@ class FileTile extends ConsumerWidget {
         onError: (e) {
           ScaffoldMessenger.of(context).showHTTPErrorBar(e);
         });
-
+    var ext = getFileExtension(this.info.name);
     return ListTile(
-      leading: Icon(Icons.folder, color: Theme.of(context).highlightColor),
+      leading: Stack(
+        alignment: AlignmentDirectional.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                color: HexColor(hashStringToColor(ext)),
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            height: 50,
+            width: 50,
+          ),
+          Container(
+            child: Container(
+                height: 30,
+                width: 30,
+                child: Image.asset("assets/images/img.png")),
+          ),
+        ],
+      ),
 
       trailing: PopupMenuButton<MenuOption>(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).bottomAppBarColor,
           icon: Icon(Icons.more_horiz, color: Theme.of(context).highlightColor),
           onSelected: (MenuOption result) async {
             switch (result) {
@@ -150,7 +215,6 @@ class FileTile extends ConsumerWidget {
           : Text(
               this.info.name,
             ),
-      //onTap: () async {},
     );
   }
 }
