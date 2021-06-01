@@ -23,8 +23,8 @@ final themeMode = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
 
 var client = new GaliClient(GaliChannel(
   ClientChannel(
-    '6.tcp.ngrok.io',
-    port: 11889,
+    'localhost',
+    port: 6969,
     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
   ),
 ));

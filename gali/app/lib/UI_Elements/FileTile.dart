@@ -101,6 +101,9 @@ class FileTile extends ConsumerWidget {
         });
     var ext = getFileExtension(this.info.name);
     return ListTile(
+      enabled: this.info.available,
+      onTap: (){
+      },
       leading: Stack(
         alignment: AlignmentDirectional.center,
         children: [
@@ -119,7 +122,6 @@ class FileTile extends ConsumerWidget {
           ),
         ],
       ),
-
       trailing: PopupMenuButton<MenuOption>(
           color: Theme.of(context).bottomAppBarColor,
           icon: Icon(Icons.more_horiz, color: Theme.of(context).highlightColor),
@@ -205,7 +207,6 @@ class FileTile extends ConsumerWidget {
                   ),
                 ),
               ]),
-
       title: pn > 0
           ? LinearProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),

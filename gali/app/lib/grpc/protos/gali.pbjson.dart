@@ -152,11 +152,12 @@ const FileInfo$json = const {
     const {'1': 'Id', '3': 2, '4': 1, '5': 9, '10': 'Id'},
     const {'1': 'creationTime', '3': 3, '4': 1, '5': 3, '10': 'creationTime'},
     const {'1': 'fileSize', '3': 4, '4': 1, '5': 2, '10': 'fileSize'},
+    const {'1': 'Available', '3': 5, '4': 1, '5': 8, '10': 'Available'},
   ],
 };
 
 /// Descriptor for `FileInfo`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List fileInfoDescriptor = $convert.base64Decode('CghGaWxlSW5mbxISCgROYW1lGAEgASgJUgROYW1lEg4KAklkGAIgASgJUgJJZBIiCgxjcmVhdGlvblRpbWUYAyABKANSDGNyZWF0aW9uVGltZRIaCghmaWxlU2l6ZRgEIAEoAlIIZmlsZVNpemU=');
+final $typed_data.Uint8List fileInfoDescriptor = $convert.base64Decode('CghGaWxlSW5mbxISCgROYW1lGAEgASgJUgROYW1lEg4KAklkGAIgASgJUgJJZBIiCgxjcmVhdGlvblRpbWUYAyABKANSDGNyZWF0aW9uVGltZRIaCghmaWxlU2l6ZRgEIAEoAlIIZmlsZVNpemUSHAoJQXZhaWxhYmxlGAUgASgIUglBdmFpbGFibGU=');
 @$core.Deprecated('Use emptyDescriptor instead')
 const Empty$json = const {
   '1': 'Empty',

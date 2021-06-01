@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"strconv"
+	"sync"
 	"time"
 
 	pb "cloud/gali/Server/protos"
@@ -65,7 +66,7 @@ func (server *GaliServer) GetAllFiles(in *pb.Empty, stream pb.Gali_GetAllFilesSe
 
 	// send the files to the user in a stream.
 	for _, file := range files {
-		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex(), CreationTime: file.Time, FileSize: float32(file.FileSize)}); err != nil {
+		if err := stream.Send(&pb.FileInfo{Name: file.Name, Id: file.ID.Hex(), CreationTime: file.Time, FileSize: float32(file.FileSize), Available: file.Available}); err != nil {
 			return status.Errorf(codes.Internal, "Something went wrong!")
 		}
 	}
@@ -93,7 +94,7 @@ func (server *GaliServer) GetFile(ctx context.Context, in *pb.FileRequest) (*pb.
 
 	// check if user owns the requested file.
 	if file.Owner == user.Email {
-		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String(), CreationTime: file.Time, FileSize: float32(file.FileSize)}, Fragments: file.Fragments}, nil
+		return &pb.GenericFile{Metadata: &pb.FileInfo{Name: file.Name, Id: file.ID.String(), CreationTime: file.Time, FileSize: float32(file.FileSize), Available: file.Available}, Fragments: file.Fragments}, nil
 	}
 	return nil, status.Errorf(codes.PermissionDenied, "you dont have the permissions to this resource")
 
@@ -146,6 +147,7 @@ const (
 )
 
 func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
+	var wg sync.WaitGroup
 
 	req, err := stream.Recv()
 	if err != nil {
@@ -164,7 +166,7 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	fileCount := int(0) // starting with 0 files and incrementing if the file is larger then the maximum size.
 
 	// create a new file in the file collection.
-	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix(), FileSize: 0.0})
+	id, err := server.mongoDBWrapper.AddFile(&File{Owner: claims.Email, Name: fileName, Fragments: []string{}, Time: time.Now().Unix(), FileSize: 0.0, Available: false})
 	check(err)
 
 	fileData := bytes.Buffer{}
@@ -207,8 +209,9 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 
 			log.Println("Sending file 🚀: " + strconv.Itoa(fileCount))
 
+			wg.Add(1)
 			// sending the array to discord.
-			go server.SendToDiscord(newFile, id, fileCount)
+			go server.SendToDiscord(newFile, id, fileCount, &wg)
 
 			fileSize -= maximumSize
 			fileCount++
@@ -227,7 +230,9 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	fileData.Read(newFile)
 
 	log.Println("sending file 🚀: " + strconv.Itoa(fileCount))
-	go server.SendToDiscord(newFile, id, fileCount)
+
+	wg.Add(1)
+	go server.SendToDiscord(newFile, id, fileCount, &wg)
 
 	fileSize += int64(int64(fileCount) * maximumSize)
 
@@ -240,6 +245,11 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 	err = server.mongoDBWrapper.IncFileSize(id, size)
 	check(err)
 
+	// wait for the file upload to finish
+	wg.Wait()
+
+	server.mongoDBWrapper.MakeFileAvailable(id)
+
 	// tell the users that everything is OK 👌.
 	err = stream.SendAndClose(&pb.StatusResponse{})
 	if err != nil {
@@ -249,7 +259,9 @@ func (server *GaliServer) Upload(stream pb.Gali_UploadServer) error {
 }
 
 // SendToDiscord
-func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCount int) {
+func (server *GaliServer) SendToDiscord(fileData []byte, fileID string, fileCount int, wg *sync.WaitGroup) {
+	// indicate that the goroutine is done.
+	defer wg.Done()
 
 	discordMsg := server.discordManager.UploadOneFile(fileData, fileCount)
 
