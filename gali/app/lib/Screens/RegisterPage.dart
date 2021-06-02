@@ -208,7 +208,7 @@ class _MyFormState extends State<MyForm> {
                                   setState(() {
                                     _loading = true;
                                   });
-                                  await Globals.client.register(
+                                  await client.register( 
                                       firstNameController.text,
                                       lastNameController.text,
                                       emailController.text,
@@ -247,7 +247,7 @@ class _MyFormState extends State<MyForm> {
                                 TextSpan(
                                     text: 'Login',
                                     style: style.copyWith(
-                                        color: Theme.of(context).primaryColor,
+                                        color: Theme.of(context).accentColor,
                                         fontWeight: FontWeight.w500,
                                         fontSize: style.fontSize / 1.5),
                                     recognizer: TapGestureRecognizer()

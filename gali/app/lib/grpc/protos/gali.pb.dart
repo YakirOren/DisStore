@@ -797,6 +797,7 @@ class FileInfo extends $pb.GeneratedMessage {
     ..aOS(2, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Id', protoName: 'Id')
     ..aInt64(3, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'creationTime', protoName: 'creationTime')
     ..a<$core.double>(4, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'fileSize', $pb.PbFieldType.OF, protoName: 'fileSize')
+    ..aOB(5, const $core.bool.fromEnvironment('protobuf.omit_field_names') ? '' : 'Available', protoName: 'Available')
     ..hasRequiredFields = false
   ;
 
@@ -806,6 +807,7 @@ class FileInfo extends $pb.GeneratedMessage {
     $core.String? id,
     $fixnum.Int64? creationTime,
     $core.double? fileSize,
+    $core.bool? available,
   }) {
     final _result = create();
     if (name != null) {
@@ -819,6 +821,9 @@ class FileInfo extends $pb.GeneratedMessage {
     }
     if (fileSize != null) {
       _result.fileSize = fileSize;
+    }
+    if (available != null) {
+      _result.available = available;
     }
     return _result;
   }
@@ -878,6 +883,15 @@ class FileInfo extends $pb.GeneratedMessage {
   $core.bool hasFileSize() => $_has(3);
   @$pb.TagNumber(4)
   void clearFileSize() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get available => $_getBF(4);
+  @$pb.TagNumber(5)
+  set available($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasAvailable() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearAvailable() => clearField(5);
 }
 
 class Empty extends $pb.GeneratedMessage {

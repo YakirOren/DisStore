@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gali/globals.dart';
-import 'package:gali/secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ThemeButton extends StatefulWidget {
   @override
@@ -46,7 +45,7 @@ class _ThemeButtonState extends State<ThemeButton> {
       onPressed: (int index) {
         updateSelected(index);
 
-        Globals.updateThemeMode(index, context);
+        context.read(themeMode.notifier).updateThemeMode(index);
       },
       borderRadius: BorderRadius.circular(15),
       isSelected: isSelected,

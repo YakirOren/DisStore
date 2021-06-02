@@ -15,8 +15,14 @@ class _FullLogoState extends State<FullLogo> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
-      child: SvgPicture.asset('assets/icon/Distore2.svg'),
+      child: FractionallySizedBox(
+        widthFactor: 0.45,
+        child: CircleAvatar(
+          radius: 100,
+          backgroundColor: Theme.of(context).primaryColor,
+          child: SvgPicture.asset('assets/icon/Distore3.svg'),
+        ),
+      ),
     );
   }
 }

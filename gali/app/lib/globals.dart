@@ -1,4 +1,3 @@
-import 'package:gali/UI_Elements/FileTile.dart';
 import 'package:gali/grpc/protos/gali.pbgrpc.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gali/grpc/galiClient.dart';
@@ -6,43 +5,72 @@ import 'package:grpc/grpc.dart';
 import 'package:flutter/material.dart';
 import 'secure_storage.dart';
 
-class Globals {
-  // this is the index of the current page.
-  static var selectedIndex = StateProvider((ref) => 0);
-  
-  static var themeMode = StateProvider((ref) => ThemeMode.system);
+// this is the index of the current page.
+var selectedIndex = StateProvider((ref) => 0);
+//var themeMode = StateProvider((ref) => ThemeMode.system);
 
-  static List<FileTile> files = [];
+// final fileTileProvider = StateNotifierProvider((ref) {
+//   return FilesNotifier();
+// });
 
-  static var client = GaliClient(GaliChannel(
-    ClientChannel(
-      '192.168.1.26',
-      port: 6969,
-      options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-    ),
-  ));
+final fi = StateNotifierProvider<FilesNotifier, List<FileInfo>>((ref) {
+  return FilesNotifier();
+});
+
+final themeMode = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier();
+});
+
+var client = new GaliClient(GaliChannel(
+  ClientChannel(
+    'localhost',
+    port: 6969,
+    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+  ),
+));
+
+class FilesNotifier extends StateNotifier<List<FileInfo>> {
+  FilesNotifier() : super([]);
+
+  void clear() {
+    state = [];
+  }
+
+  void add(FileInfo ft) {
+    state = [...state, ft];
+  }
+
+  void delete(FileInfo ft) {
+    state = [
+      for (final tile in state)
+        if (ft != tile) tile
+    ];
+  }
+}
+
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier() : super(ThemeMode.system);
 
   /// [updateThemeMode] changes [Globals.themeMode] for a given index.
   ///
   /// 0 -> darkTheme
   /// 1 -> lightTheme
   /// 2 -> system theme.
-  static void updateThemeMode(int index, BuildContext context) {
-
+  void updateThemeMode(int index) {
     switch (index) {
       case 0:
         {
-          context.read(themeMode).state = ThemeMode.dark;
+          state = ThemeMode.dark;
           break;
         }
       case 1:
         {
-          context.read(themeMode).state = ThemeMode.light;
+          state = ThemeMode.light;
           break;
         }
       case 2:
         {
-          context.read(themeMode).state = ThemeMode.system;
+          state = ThemeMode.system;
           break;
         }
     }
@@ -50,11 +78,4 @@ class Globals {
     SecureStorage.writeSecureData('ThemeIndex', index.toString());
   }
 
-  static bool isDarkMode(BuildContext context){
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool darkModeOn =
-        (context.read(themeMode).state == ThemeMode.dark &&
-            brightness == Brightness.dark);
-    return darkModeOn;
-  }
 }

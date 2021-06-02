@@ -13,6 +13,7 @@ type File struct {
 	Fragments []string           `bson:"Fragments" json:"Fragments"`
 	Time      int64              `bson:"Time" json:"Time"`
 	FileSize  float64            `bson:"FileSize" json:"FileSize"`
+	Available bool               `bson:"Available" json:"Available"`
 }
 
 // ToBson truns the File object into bson
@@ -24,6 +25,7 @@ func (File *File) ToBson() bson.D {
 		{Key: "Name", Value: File.Name},
 		{Key: "Time", Value: File.Time},
 		{Key: "FileSize", Value: File.FileSize},
+		{Key: "Available", Value: File.Available},
 	}
 
 	return a

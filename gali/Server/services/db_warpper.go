@@ -289,6 +289,10 @@ func (store *MongoDBWrapper) IncFileSize(id string, value float64) error {
 	return store.UpdateFileField(id, "FileSize", "$set", value)
 }
 
+func (store *MongoDBWrapper) MakeFileAvailable(id string) error {
+	return store.UpdateFileField(id, "Available", "$set", true)
+}
+
 //ActivateUser sets the balance field.
 func (store *MongoDBWrapper) ActivateUser(mail string) error {
 	return store.UpdateFieldValue(mail, "Activated", "$set", true)

@@ -108,6 +108,9 @@ message FileInfo{
 
     // the size of the file in GB.
     float fileSize = 4;
+
+    // if the file is done uploading or not.
+    bool Available = 5;
 }
 
 message Empty{

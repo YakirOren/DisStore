@@ -21,6 +21,9 @@ import 'package:gali/UI_Elements/confirm.dart';
 import 'package:gali/secure_storage.dart';
 import 'LoginPage.dart';
 
+
+final scaffoldKey = GlobalKey();
+
 //AppBase is the base of the application,
 //it has a navigation bar and
 class AppBase extends StatefulWidget {
@@ -30,8 +33,10 @@ class AppBase extends StatefulWidget {
 }
 
 class _AppBaseState extends State<AppBase> {
+  
   @override
   void initState() {
+    
     super.initState();
     init();
   }
@@ -40,26 +45,27 @@ class _AppBaseState extends State<AppBase> {
   void init() async {
     // stating a periodic timer to refresh the accsess token in the backround.
     Timer.periodic(Duration(minutes: 5), (timer) async {
-      await Globals.client.loginWithRefresh();
+      await client.loginWithRefresh();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    
     // _widgetOptions holds the pages
     final List<Widget> _widgetOptions = <Widget>[
       FilesPage(),
       HomePage(),
     ];
     void _onItemTapped(int index) {
-      context.read(Globals.selectedIndex).state = index;
+      context.read(selectedIndex).state = index;
     }
 
     MaterialColor color =
         (Theme.of(context).highlightColor).createMaterialColor();
 
     return Consumer(builder: (context, watch, _) {
-      final index = watch(Globals.selectedIndex).state;
+      final index = watch(selectedIndex).state;
 
       final navItems = [
         BottomNavigationBarItem(
@@ -74,6 +80,7 @@ class _AppBaseState extends State<AppBase> {
       ];
 
       return Scaffold(
+        key: scaffoldKey,
         primary: true,
         floatingActionButton: ActionsButton(),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -84,6 +91,7 @@ class _AppBaseState extends State<AppBase> {
               padding: EdgeInsets.zero,
               children: <Widget>[
                 UserAccountsDrawerHeader(
+                  arrowColor: Theme.of(context).backgroundColor,
                   otherAccountsPictures: [
                     IconButton(
                       icon: Icon(Icons.logout, color: Colors.white),
@@ -100,24 +108,23 @@ class _AppBaseState extends State<AppBase> {
                                 return false;
                               },
                               actionText: Text('logout'),
-                              actionFunction: () async {
-                                logout(context);
+                              actionFunction: () {
+                                logout();
                               }),
                         );
                       },
                     ),
                   ],
-                  accountEmail: Text(Globals.client.getCachedMail),
+                  accountEmail: Text(client.getCachedMail),
                   accountName: Text(
-                      "${Globals.client.getCachedFirstName.capitalize()} ${Globals.client.getCachedLastName.capitalize()}"),
+                      "${client.getCachedFirstName.capitalize()} ${client.getCachedLastName.capitalize()}"),
                   currentAccountPicture: CircleAvatar(
                     backgroundImage: AssetImage("assets/images/avatar.png"),
                   ),
                 ),
                 ListTile(
-                  leading: Icon(Icons.offline_pin_outlined, color: color[800]),
-                  title: Text('Offline'),
-                  onTap: () {},
+                  leading: Icon(Icons.help_outline, color: color[800]),
+                  title: Text('Help & Feedback'),
                   horizontalTitleGap: 0,
                 ),
                 ListTile(
@@ -130,11 +137,6 @@ class _AppBaseState extends State<AppBase> {
                         MaterialPageRoute(
                             builder: (BuildContext context) => SettingsPage()));
                   },
-                ),
-                ListTile(
-                  leading: Icon(Icons.help_outline, color: color[800]),
-                  title: Text('Help & Feedback'),
-                  horizontalTitleGap: 0,
                 ),
                 ListTile(
                   leading: Icon(Icons.cloud_outlined, color: color[800]),
@@ -150,14 +152,14 @@ class _AppBaseState extends State<AppBase> {
                       children: [
                         Spacer(),
                         LinearProgressIndicator(
-                          value: Globals.client.getUsedStorage / 10,
+                          value: client.getUsedStorage / 10,
                           backgroundColor: color[300],
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.blue),
                         ),
                         Spacer(),
                         Text(
-                            "${formatFileSize(Globals.client.getUsedStorage)} of 10 GB used",
+                            "${formatFileSize(client.getUsedStorage)} of ∞ GB used",
                             style: Theme.of(context).textTheme.subtitle1),
                       ],
                     ),
@@ -193,13 +195,22 @@ class _AppBaseState extends State<AppBase> {
   }
 }
 
-void logout(BuildContext context) {
+void logout() {
+  var context = scaffoldKey.currentContext; 
   SecureStorage.deleteSecureData('refreshToken');
-  Globals.files = [];
+
+  // final f = watch(fileTileProvider);
+  // //files.clear();
+
+  context.read(fi).clear();
+
   Navigator.of(context).pushReplacement(
-    MaterialPageRoute(builder: (context) {
-      return LoginPage();
-    }),
+    MaterialPageRoute(
+        fullscreenDialog: true,
+        maintainState: false,
+        builder: (context) {
+          return LoginPage();
+        }),
   );
 }
 
@@ -218,9 +229,9 @@ class ActionsButton extends StatelessWidget {
           "assets/icon/plus.svg",
         ),
       ),
-      onPressed: () async {
+      onPressed: () {
         showModalBottomSheet<void>(
-          context: context,
+          context: scaffoldKey.currentContext,
           builder: (BuildContext context) {
             return Container(
               height: 200,
@@ -261,7 +272,19 @@ class ActionsButton extends StatelessWidget {
                                       .pickFiles(type: FileType.any);
 
                                   if (result != null) {
-                                    Globals.client.upload(result.files.single);
+                                    Navigator.of(context).pop();
+
+                                    ScaffoldMessenger.of(context)
+                                        .showLoadingBar();
+
+                                    client
+                                        .upload(result.files.single)
+                                        .then((value) {
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .showOkBar("Upload completed!");
+                                    });
                                   } else {
                                     // User canceled the picker
                                   }
@@ -284,7 +307,19 @@ class ActionsButton extends StatelessWidget {
                                       .pickFiles(type: FileType.media);
 
                                   if (result != null) {
-                                    Globals.client.upload(result.files.single);
+                                    Navigator.of(context).pop();
+
+                                    ScaffoldMessenger.of(context)
+                                        .showLoadingBar();
+
+                                    client
+                                        .upload(result.files.single)
+                                        .then((value) {
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .showOkBar("Upload completed!");
+                                    });
                                   } else {
                                     // User canceled the picker
                                   }
@@ -322,7 +357,7 @@ class ActionsButton extends StatelessWidget {
         );
       },
       foregroundColor: Theme.of(context).highlightColor,
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Theme.of(context).bottomAppBarColor,
     );
   }
 }
