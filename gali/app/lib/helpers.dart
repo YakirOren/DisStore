@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:grpc/grpc.dart';
 import 'package:intl/intl.dart';
 
-
 // This file has helper functions to manage the app better
 
 // This extends the string type to add a method named capitalize
@@ -15,7 +14,7 @@ extension StringExtension on String {
   }
 }
 
-extension Colory on Color {
+extension MaterialC on Color {
   MaterialColor createMaterialColor() {
     List strengths = <double>[.05];
     Map swatch = <int, Color>{};
@@ -37,8 +36,7 @@ extension Colory on Color {
   }
 }
 
-extension Errors on ScaffoldMessengerState {
-
+extension SnackBars on ScaffoldMessengerState {
   // showErrorBar displays the grpc error to the user.
   void showErrorBar(GrpcError e) {
     this.showSnackBar(SnackBar(
@@ -63,9 +61,14 @@ extension Errors on ScaffoldMessengerState {
     ));
   }
 
+  // showErrorBar displays the grpc error to the user.
+  void showLoadingBar() {
+    this.showSnackBar(SnackBar(
+      content: LinearProgressIndicator(),
+      backgroundColor: Theme.of(context).bottomAppBarColor,
+    ));
+  }
 }
-
-
 
 String readTimestamp(int timestamp) {
   var now = DateTime.now();

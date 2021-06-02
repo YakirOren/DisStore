@@ -21,6 +21,9 @@ import 'package:gali/UI_Elements/confirm.dart';
 import 'package:gali/secure_storage.dart';
 import 'LoginPage.dart';
 
+
+final scaffoldKey = GlobalKey();
+
 //AppBase is the base of the application,
 //it has a navigation bar and
 class AppBase extends StatefulWidget {
@@ -30,8 +33,10 @@ class AppBase extends StatefulWidget {
 }
 
 class _AppBaseState extends State<AppBase> {
+  
   @override
   void initState() {
+    
     super.initState();
     init();
   }
@@ -46,6 +51,7 @@ class _AppBaseState extends State<AppBase> {
 
   @override
   Widget build(BuildContext context) {
+    
     // _widgetOptions holds the pages
     final List<Widget> _widgetOptions = <Widget>[
       FilesPage(),
@@ -74,6 +80,7 @@ class _AppBaseState extends State<AppBase> {
       ];
 
       return Scaffold(
+        key: scaffoldKey,
         primary: true,
         floatingActionButton: ActionsButton(),
         backgroundColor: Theme.of(context).backgroundColor,
@@ -102,7 +109,7 @@ class _AppBaseState extends State<AppBase> {
                               },
                               actionText: Text('logout'),
                               actionFunction: () {
-                                logout(context);
+                                logout();
                               }),
                         );
                       },
@@ -120,7 +127,6 @@ class _AppBaseState extends State<AppBase> {
                   title: Text('Help & Feedback'),
                   horizontalTitleGap: 0,
                 ),
-                
                 ListTile(
                   leading: Icon(Icons.settings_outlined, color: color[800]),
                   title: Text('Settings'),
@@ -132,7 +138,6 @@ class _AppBaseState extends State<AppBase> {
                             builder: (BuildContext context) => SettingsPage()));
                   },
                 ),
-                
                 ListTile(
                   leading: Icon(Icons.cloud_outlined, color: color[800]),
                   horizontalTitleGap: 0,
@@ -190,7 +195,8 @@ class _AppBaseState extends State<AppBase> {
   }
 }
 
-void logout(BuildContext context) {
+void logout() {
+  var context = scaffoldKey.currentContext; 
   SecureStorage.deleteSecureData('refreshToken');
 
   // final f = watch(fileTileProvider);
@@ -216,7 +222,6 @@ class ActionsButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      
       child: LimitedBox(
         maxHeight: 20,
         maxWidth: 20,
@@ -226,7 +231,7 @@ class ActionsButton extends StatelessWidget {
       ),
       onPressed: () {
         showModalBottomSheet<void>(
-          context: context,
+          context: scaffoldKey.currentContext,
           builder: (BuildContext context) {
             return Container(
               height: 200,
@@ -267,12 +272,17 @@ class ActionsButton extends StatelessWidget {
                                       .pickFiles(type: FileType.any);
 
                                   if (result != null) {
+                                    Navigator.of(context).pop();
+
+                                    ScaffoldMessenger.of(context)
+                                        .showLoadingBar();
+
                                     client
                                         .upload(result.files.single)
                                         .then((value) {
-                                      Navigator.of(context).pop();
-
-                                      ScaffoldMessenger.of(context)
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
                                           .showOkBar("Upload completed!");
                                     });
                                   } else {
@@ -297,12 +307,17 @@ class ActionsButton extends StatelessWidget {
                                       .pickFiles(type: FileType.media);
 
                                   if (result != null) {
+                                    Navigator.of(context).pop();
+
+                                    ScaffoldMessenger.of(context)
+                                        .showLoadingBar();
+
                                     client
                                         .upload(result.files.single)
                                         .then((value) {
-                                      Navigator.of(context).pop();
-
-                                      ScaffoldMessenger.of(context)
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
+                                          .removeCurrentSnackBar();
+                                      ScaffoldMessenger.of(scaffoldKey.currentContext)
                                           .showOkBar("Upload completed!");
                                     });
                                   } else {
