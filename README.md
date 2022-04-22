@@ -15,13 +15,23 @@
 
 
 
-## ✨ Features
+```mermaid
+ sequenceDiagram  
+    participant Discord
+    participant User  
+    participant Server
+      
+    User->>Server: Get file X    
+    Server-->>User: A list of links   
+    
+    loop Retrive File  
+		User->>Discord: GET chunk    
+		Discord-->>User: chunk content
+    end 
 
-* Upload and download files from the cloud.
-* Search Files
-* authentication and authorization system built with gRPC and JWT with mail verfication.
-* login from a new deivce alert 
-
+	User->>User: conbines chunks into one file
+   
+```
 
 
 ## 🚀 Examples
@@ -32,6 +42,8 @@
 
 <img src="https://cdn.discordapp.com/attachments/588014716144713739/863802815029575700/fileDownload.gif" height="600" />
  </div>
+
+
 
 
 
